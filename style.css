@@ -439,6 +439,29 @@ tbody tr:hover {
   color: #9a5600;
 }
 
+.history-box {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  display: grid;
+  gap: 8px;
+}
+
+.history-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.history-list li {
+  color: var(--muted);
+  font-size: 13px;
+}
+
 @media (max-width: 1100px) {
   .layout {
     grid-template-columns: 1fr;

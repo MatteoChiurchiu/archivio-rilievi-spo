@@ -14,6 +14,7 @@ const HARDWARE_ITEMS = [
 ];
 
 const MONTAGGIO_ITEMS = [
+  { key: "montaggioFotocamere", label: "Montaggio Fotocamere" },
   { key: "montaggioModulo", label: "Montaggio modulo controllo" },
   { key: "montaggioDisplay", label: "Montaggio display" },
   { key: "montaggioAntenna", label: "Montaggio antenna GPS" },
@@ -70,6 +71,7 @@ const dom = {
   gAtterraggio: document.getElementById("g-atterraggio"),
   gSpegnimento: document.getElementById("g-spegnimento"),
   gNote: document.getElementById("g-note"),
+  historyList: document.getElementById("history-list"),
 
   exportDataBtn: document.getElementById("export-data"),
   importDataInput: document.getElementById("import-data"),
@@ -345,6 +347,25 @@ function setCloudStatus(message) {
   dom.cloudStatus.textContent = message;
 }
 
+function formatDateTime(iso) {
+  if (!iso) {
+    return "n.d.";
+  }
+
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return "n.d.";
+  }
+
+  return date.toLocaleString("it-IT", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function markCommessaUpdated(commessa, action) {
   commessa.updatedAt = new Date().toISOString();
   commessa.updatedBy = state.currentUser.email || "sconosciuto";
@@ -357,11 +378,22 @@ function markCommessaUpdated(commessa, action) {
   commessa.history = history.slice(-40);
 }
 
-async function tryLogin(email, password) {
+async function tryLogin(email, password, options = {}) {
+  const trackLogin = Boolean(options.trackLogin);
+
   if (!state.backendAvailable || !state.authRequired) {
     state.currentUser.email = email;
     state.currentUser.password = password;
     sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ email, password }));
+
+    if (trackLogin) {
+      const active = getActiveCommessa();
+      if (active) {
+        markCommessaUpdated(active, "Login utente");
+        saveState();
+      }
+    }
+
     renderUserBadge();
     hideAuthModal();
     return true;
@@ -382,6 +414,15 @@ async function tryLogin(email, password) {
   state.currentUser.email = email;
   state.currentUser.password = password;
   sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ email, password }));
+
+  if (trackLogin) {
+    const active = getActiveCommessa();
+    if (active) {
+      markCommessaUpdated(active, "Login utente");
+      saveState();
+    }
+  }
+
   renderUserBadge();
   hideAuthModal();
   return true;
@@ -498,6 +539,32 @@ function getActiveCommessa() {
   return state.commesse.find((c) => c.id === state.activeCommessaId) || null;
 }
 
+function renderCommessaHistory(commessa) {
+  if (!dom.historyList) {
+    return;
+  }
+
+  dom.historyList.innerHTML = "";
+
+  if (!commessa) {
+    dom.historyList.innerHTML = "<li>Nessuna commessa selezionata.</li>";
+    return;
+  }
+
+  const history = Array.isArray(commessa.history) ? [...commessa.history].reverse() : [];
+  if (history.length === 0) {
+    dom.historyList.innerHTML = "<li>Nessuna modifica registrata.</li>";
+    return;
+  }
+
+  const visible = history.slice(0, 12);
+  for (const item of visible) {
+    const li = document.createElement("li");
+    li.textContent = `${formatDateTime(item.at)} - ${item.by || "sconosciuto"}: ${item.action || "Modifica"}`;
+    dom.historyList.appendChild(li);
+  }
+}
+
 function setActiveCommessa(commessaId) {
   state.activeCommessaId = commessaId;
   saveState();
@@ -545,7 +612,7 @@ function renderCommesse() {
     card.innerHTML = `
       <h3>${commessa.codice} - ${commessa.nome}</h3>
       <p>${commessa.cliente}</p>
-      <p>Ultima modifica: ${commessa.updatedBy || "n.d."}</p>
+      <p>Ultima modifica: ${commessa.updatedBy || "n.d."} (${formatDateTime(commessa.updatedAt)})</p>
       <div class="commessa-card-footer">
         <button class="btn tiny ghost" data-work="${commessa.id}">Lavora</button>
         <button class="btn tiny ghost" data-edit="${commessa.id}">Modifica</button>
@@ -635,6 +702,7 @@ function renderWorkSheet() {
     renderChecklist(dom.checkHardware, HARDWARE_ITEMS, "hardware", emptyChecks(HARDWARE_ITEMS));
     renderChecklist(dom.checkMontaggio, MONTAGGIO_ITEMS, "montaggio", emptyChecks(MONTAGGIO_ITEMS));
     buildStrisciateRows([]);
+    renderCommessaHistory(null);
     setWorkFormEnabled(false);
     return;
   }
@@ -666,6 +734,7 @@ function renderWorkSheet() {
   dom.gNote.value = active.giornale.note || "";
 
   buildStrisciateRows(active.giornale.strisciate || []);
+  renderCommessaHistory(active);
 }
 
 function render() {
@@ -1027,7 +1096,7 @@ function bindEvents() {
     }
 
     setAuthStatus("Verifica credenziali...");
-    const ok = await tryLogin(email, password);
+    const ok = await tryLogin(email, password, { trackLogin: true });
     if (!ok) {
       setAuthStatus("Credenziali non valide.");
       return;
@@ -1049,7 +1118,7 @@ async function init() {
     showAuthModal();
   }
   if (state.authRequired && state.currentUser.email && state.currentUser.password) {
-    const ok = await tryLogin(state.currentUser.email, state.currentUser.password);
+    const ok = await tryLogin(state.currentUser.email, state.currentUser.password, { trackLogin: false });
     if (!ok) {
       state.currentUser.email = "";
       state.currentUser.password = "";

@@ -19,7 +19,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">Gestione Operativa</p>
-        <h1>Archivio Rapporti Rilievo Fotogrammetrico</h1>
+        <h1>Archivio Rilievi SPO</h1>
       </div>
       <div class="topbar-actions">
         <span id="user-badge" class="chip muted">Utente non autenticato</span>
@@ -162,6 +162,12 @@
           </label>
 
           <button type="submit" class="btn primary">Salva scheda commessa</button>
+
+          <div class="history-box">
+            <h3 class="section-title">Storico modifiche</h3>
+            <small class="hint">Mostra utente (login) e salvataggi della commessa selezionata.</small>
+            <ul id="history-list" class="history-list"></ul>
+          </div>
         </form>
       </section>
     </main>
