@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: report-spo
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DEFAULT_CLOUD_ENDPOINT
+        sync: false
+      - key: APP_PASSWORD
+        sync: false

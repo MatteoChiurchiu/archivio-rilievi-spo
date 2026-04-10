@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report SPO - Fotogrammetria in Volo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="bg-shape bg-shape-one"></div>
+    <div class="bg-shape bg-shape-two"></div>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Gestione Operativa</p>
+        <h1>Archivio Rapporti Rilievo Fotogrammetrico</h1>
+      </div>
+      <div class="topbar-actions">
+        <span id="user-badge" class="chip muted">Utente non autenticato</span>
+        <button id="change-user" class="btn ghost">Cambia utente</button>
+        <button id="print-pdf" class="btn ghost">Stampa PDF</button>
+        <button id="export-data" class="btn ghost">Esporta JSON</button>
+        <label class="btn ghost file-input-label" for="import-data">Importa JSON</label>
+        <input id="import-data" type="file" accept="application/json" />
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel commesse-panel">
+        <div class="panel-head">
+          <h2>Commesse</h2>
+          <span id="commesse-count" class="chip">0</span>
+        </div>
+
+        <form id="commessa-form" class="stack-form">
+          <input id="commessa-codice" type="text" placeholder="Codice commessa" required />
+          <input id="commessa-nome" type="text" placeholder="Nome commessa" required />
+          <input id="commessa-cliente" type="text" placeholder="Cliente" required />
+          <div class="form-actions">
+            <button id="commessa-save-btn" type="submit" class="btn primary">Crea commessa</button>
+            <button id="commessa-cancel-edit" type="button" class="btn ghost hidden">Annulla modifica</button>
+          </div>
+        </form>
+
+        <div class="cloud-box">
+          <h3>Cloud Google Drive</h3>
+          <input
+            id="cloud-endpoint"
+            type="url"
+            placeholder="URL Web App Google Apps Script"
+          />
+          <div class="form-actions">
+            <button id="save-cloud" type="button" class="btn ghost">Salva su Cloud</button>
+            <button id="load-cloud" type="button" class="btn ghost">Carica da Cloud</button>
+          </div>
+          <small id="cloud-status" class="hint">Cloud non configurato.</small>
+        </div>
+
+        <div id="commesse-list" class="commesse-list"></div>
+      </aside>
+
+      <section class="panel content-panel">
+        <div class="panel-head">
+          <h2>Scheda Commessa</h2>
+          <span id="active-commessa-chip" class="chip muted">Nessuna commessa selezionata</span>
+        </div>
+
+        <form id="work-form" class="report-form">
+          <h3 class="section-title">Dati Base</h3>
+          <div class="grid-2">
+            <label>
+              Localita
+              <input id="commessa-localita" type="text" required />
+            </label>
+            <label>
+              Data
+              <input id="commessa-data" type="date" required />
+            </label>
+            <label class="full-width">
+              Posizione geolocalizzata
+              <div class="geo-row">
+                <input id="commessa-posizione" type="text" readonly placeholder="Latitudine, Longitudine" />
+                <button id="geo-btn" type="button" class="btn ghost">Acquisisci posizione</button>
+              </div>
+              <small id="geo-status" class="hint"></small>
+            </label>
+          </div>
+
+          <h3 class="section-title">Check Hardware</h3>
+          <div id="check-hardware" class="check-grid"></div>
+
+          <h3 class="section-title">Check Montaggio</h3>
+          <div id="check-montaggio" class="check-grid"></div>
+
+          <h3 class="section-title">Giornale di Lavoro</h3>
+          <div class="grid-2">
+            <label>
+              Accensione motore
+              <input id="g-accensione" type="time" />
+            </label>
+            <label>
+              Decollo
+              <input id="g-decollo" type="time" />
+            </label>
+            <label>
+              Inizio acquisizione foto
+              <input id="g-inizio-acq" type="time" />
+            </label>
+            <label>
+              Numero strisciate
+              <input id="g-num-strisciate" type="number" min="0" step="1" value="0" />
+            </label>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Direzione (angolo)</th>
+                  <th>Parziale</th>
+                  <th>Completa</th>
+                </tr>
+              </thead>
+              <tbody id="strisciate-body">
+                <tr>
+                  <td colspan="4">Nessuna strisciata. Inserisci il numero sopra.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="grid-2">
+            <label>
+              Fine lavori
+              <input id="g-fine-lavori" type="time" />
+            </label>
+            <label class="check-inline">
+              <input id="g-global-mapper" type="checkbox" />
+              Check GLOBAL MAPPER
+            </label>
+            <label>
+              Atterraggio
+              <input id="g-atterraggio" type="time" />
+            </label>
+            <label>
+              Spegnimento motori
+              <input id="g-spegnimento" type="time" />
+            </label>
+          </div>
+
+          <label>
+            Note
+            <textarea id="g-note" rows="3" placeholder="Annotazioni finali"></textarea>
+          </label>
+
+          <button type="submit" class="btn primary">Salva scheda commessa</button>
+        </form>
+      </section>
+    </main>
+
+    <div id="auth-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <form id="auth-form" class="auth-modal panel">
+        <h2>Accesso</h2>
+        <p class="hint">Inserisci email e password condivisa per tracciare le modifiche.</p>
+        <label>
+          Email
+          <input id="auth-email" type="email" placeholder="nome@azienda.it" required />
+        </label>
+        <label>
+          Password
+          <input id="auth-password" type="password" placeholder="Password" required />
+        </label>
+        <button type="submit" class="btn primary">Entra</button>
+        <small id="auth-status" class="hint"></small>
+      </form>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
