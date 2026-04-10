@@ -390,6 +390,26 @@ td {
   font-size: 14px;
 }
 
+.col-id {
+  width: 88px;
+  max-width: 88px;
+}
+
+td.col-id,
+th.col-id {
+  width: 88px;
+  min-width: 88px;
+  max-width: 88px;
+}
+
+.str-id {
+  max-width: 72px;
+}
+
+.str-note {
+  min-width: 200px;
+}
+
 th {
   background: rgba(0, 109, 119, 0.08);
   font-family: "Space Grotesk", sans-serif;
@@ -495,6 +515,51 @@ tbody tr:hover {
     border: 0;
     background: #fff;
     padding: 0;
+  }
+
+  .table-wrap {
+    overflow: visible;
+    border: 1px solid #d9d9d9;
+  }
+
+  table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    font-size: 11px;
+    padding: 6px;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  th.col-id,
+  td.col-id {
+    width: 56px;
+    min-width: 56px;
+    max-width: 56px;
+  }
+
+  .str-id,
+  .str-dir,
+  .str-note {
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 2px;
+  }
+
+  .str-note {
+    min-width: 0;
+  }
+
+  tr,
+  td,
+  th {
+    page-break-inside: avoid;
   }
 
   .btn {

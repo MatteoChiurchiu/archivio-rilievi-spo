@@ -593,14 +593,14 @@ function buildStrisciateRows(strisciate) {
   dom.strisciateBody.innerHTML = "";
 
   if (strisciate.length === 0) {
-    dom.strisciateBody.innerHTML = "<tr><td colspan=\"4\">Nessuna strisciata. Inserisci il numero sopra.</td></tr>";
+    dom.strisciateBody.innerHTML = "<tr><td colspan=\"5\">Nessuna strisciata. Inserisci il numero sopra.</td></tr>";
     return;
   }
 
   for (let i = 0; i < strisciate.length; i += 1) {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><input type="number" min="0" step="1" class="str-id" data-index="${i}" value="${strisciate[i].id ?? i + 1}" /></td>
+      <td class="col-id"><input type="number" min="0" max="9999" step="1" class="str-id" data-index="${i}" value="${strisciate[i].id ?? i + 1}" /></td>
       <td><input type="number" step="0.1" class="str-dir" data-index="${i}" value="${strisciate[i].direzione ?? ""}" /></td>
       <td><input type="checkbox" class="str-parziale" data-index="${i}" ${
       strisciate[i].parziale ? "checked" : ""
@@ -608,6 +608,7 @@ function buildStrisciateRows(strisciate) {
       <td><input type="checkbox" class="str-completa" data-index="${i}" ${
       strisciate[i].completa ? "checked" : ""
     } /></td>
+      <td><input type="text" class="str-note" data-index="${i}" value="${strisciate[i].note ?? ""}" placeholder="Note" /></td>
     `;
     dom.strisciateBody.appendChild(row);
   }
@@ -744,6 +745,7 @@ function adjustStrisciate(count) {
         direzione: "",
         parziale: false,
         completa: false,
+        note: "",
       }
     );
   }
@@ -853,11 +855,17 @@ function bindEvents() {
     }
 
     if (event.target.classList.contains("str-id")) {
-      active.giornale.strisciate[index].id = Number(event.target.value) || 0;
+      const idValue = Math.max(0, Math.min(9999, Number(event.target.value) || 0));
+      active.giornale.strisciate[index].id = idValue;
+      event.target.value = String(idValue);
     }
 
     if (event.target.classList.contains("str-dir")) {
       active.giornale.strisciate[index].direzione = event.target.value;
+    }
+
+    if (event.target.classList.contains("str-note")) {
+      active.giornale.strisciate[index].note = event.target.value;
     }
 
     markCommessaUpdated(active, `Modifica riga strisciata ${index + 1}`);
