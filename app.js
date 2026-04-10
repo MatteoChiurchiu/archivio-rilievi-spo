@@ -565,7 +565,7 @@ function renderCommesse() {
 
     card.querySelector("[data-delete]").addEventListener("click", (event) => {
       event.stopPropagation();
-      deleteCommessa(commessa.id);
+      void deleteCommessa(commessa.id);
     });
 
     card.addEventListener("click", () => setActiveCommessa(commessa.id));
@@ -708,7 +708,7 @@ function addOrUpdateCommessa(payload) {
   render();
 }
 
-function deleteCommessa(commessaId) {
+async function deleteCommessa(commessaId) {
   const ok = confirm("Vuoi cancellare definitivamente questa commessa?");
   if (!ok) {
     return;
@@ -726,6 +726,29 @@ function deleteCommessa(commessaId) {
 
   saveState();
   render();
+
+  const endpoint = getCloudEndpoint();
+  if (!endpoint) {
+    return;
+  }
+
+  const syncCloudNow = confirm(
+    "Commessa eliminata in locale. Vuoi aggiornare subito anche il cloud?"
+  );
+
+  if (!syncCloudNow) {
+    setCloudStatus("Commessa eliminata in locale. Premi 'Salva su Cloud' per aggiornare il cloud.");
+    return;
+  }
+
+  setCloudStatus("Aggiornamento cloud in corso dopo cancellazione...");
+
+  try {
+    await callCloud("save");
+    setCloudStatus("Cancellazione sincronizzata anche sul cloud.");
+  } catch {
+    setCloudStatus("Errore aggiornamento cloud: la commessa e stata eliminata solo in locale.");
+  }
 }
 
 function adjustStrisciate(count) {
