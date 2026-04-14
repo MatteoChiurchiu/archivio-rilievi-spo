@@ -251,7 +251,8 @@ function saveState() {
 }
 
 function normalizeLoadedData(raw) {
-  const commesse = Array.isArray(raw.commesse) ? raw.commesse : [];
+  const envelope = normalizeStateEnvelope(raw);
+  const commesse = envelope.commesse;
 
   return commesse.map((c) => ({
     id: c.id || uid("commessa"),
@@ -277,6 +278,58 @@ function normalizeLoadedData(raw) {
     updatedBy: c.updatedBy || "",
     history: Array.isArray(c.history) ? c.history : [],
   }));
+}
+
+function parseMaybeJson(value) {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const text = value.trim();
+  if (!text) {
+    return value;
+  }
+
+  if (!(text.startsWith("{") || text.startsWith("["))) {
+    return value;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return value;
+  }
+}
+
+function normalizeStateEnvelope(raw) {
+  const parsed = parseMaybeJson(raw);
+  const roots = [parsed, parsed?.payload, parsed?.data, parsed?.state, parsed?.result, parsed?.value];
+
+  for (const root of roots) {
+    const candidate = parseMaybeJson(root);
+
+    if (Array.isArray(candidate)) {
+      return {
+        commesse: candidate,
+        activeCommessaId: candidate[0]?.id || null,
+        recognized: true,
+      };
+    }
+
+    if (candidate && typeof candidate === "object" && Array.isArray(candidate.commesse)) {
+      return {
+        commesse: candidate.commesse,
+        activeCommessaId: candidate.activeCommessaId || null,
+        recognized: true,
+      };
+    }
+  }
+
+  return {
+    commesse: [],
+    activeCommessaId: null,
+    recognized: false,
+  };
 }
 
 function normalizeGiornaleData(giornale) {
@@ -332,10 +385,11 @@ function loadState() {
 
   try {
     const parsed = JSON.parse(raw);
-    state.commesse = normalizeLoadedData(parsed);
+    const envelope = normalizeStateEnvelope(parsed);
+    state.commesse = normalizeLoadedData(envelope);
     state.activeCommessaId =
-      parsed.activeCommessaId && state.commesse.some((c) => c.id === parsed.activeCommessaId)
-        ? parsed.activeCommessaId
+      envelope.activeCommessaId && state.commesse.some((c) => c.id === envelope.activeCommessaId)
+        ? envelope.activeCommessaId
         : state.commesse[0]?.id || null;
   } catch {
     console.warn("Archivio locale non valido");
@@ -386,10 +440,11 @@ async function loadStateFromBackend() {
     }
 
     const data = await response.json();
-    state.commesse = normalizeLoadedData(data);
+    const envelope = normalizeStateEnvelope(data);
+    state.commesse = normalizeLoadedData(envelope);
     state.activeCommessaId =
-      data.activeCommessaId && state.commesse.some((c) => c.id === data.activeCommessaId)
-        ? data.activeCommessaId
+      envelope.activeCommessaId && state.commesse.some((c) => c.id === envelope.activeCommessaId)
+        ? envelope.activeCommessaId
         : state.commesse[0]?.id || null;
   } catch {
     console.warn("Lettura backend non riuscita");
@@ -588,15 +643,21 @@ async function pullFromCloud() {
 
   try {
     const data = await callCloud("load");
-    if (!Array.isArray(data?.commesse)) {
-      setCloudStatus("Formato risposta cloud non valido.");
+    if (data?.error) {
+      setCloudStatus(`Errore cloud: ${data.error}`);
       return;
     }
 
-    state.commesse = normalizeLoadedData(data);
+    const envelope = normalizeStateEnvelope(data);
+    if (!envelope.recognized) {
+      setCloudStatus("Formato risposta cloud non valido o non compatibile.");
+      return;
+    }
+
+    state.commesse = normalizeLoadedData(envelope);
     state.activeCommessaId =
-      data.activeCommessaId && state.commesse.some((c) => c.id === data.activeCommessaId)
-        ? data.activeCommessaId
+      envelope.activeCommessaId && state.commesse.some((c) => c.id === envelope.activeCommessaId)
+        ? envelope.activeCommessaId
         : state.commesse[0]?.id || null;
     state.editCommessaId = null;
     saveState();
@@ -1349,11 +1410,12 @@ function bindEvents() {
     reader.onload = () => {
       try {
         const data = JSON.parse(String(reader.result));
-        const nextCommesse = normalizeLoadedData(data);
+        const envelope = normalizeStateEnvelope(data);
+        const nextCommesse = normalizeLoadedData(envelope);
         state.commesse = nextCommesse;
         state.activeCommessaId =
-          data.activeCommessaId && nextCommesse.some((c) => c.id === data.activeCommessaId)
-            ? data.activeCommessaId
+          envelope.activeCommessaId && nextCommesse.some((c) => c.id === envelope.activeCommessaId)
+            ? envelope.activeCommessaId
             : nextCommesse[0]?.id || null;
         state.editCommessaId = null;
         saveState();
