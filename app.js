@@ -661,6 +661,7 @@ function buildStrisciateRows(strisciate) {
 
   if (strisciate.length === 0) {
     dom.strisciateBody.innerHTML = "<tr><td colspan=\"5\">Nessuna strisciata. Inserisci il numero sopra.</td></tr>";
+    syncStrisciateColumnWidths();
     return;
   }
 
@@ -668,7 +669,7 @@ function buildStrisciateRows(strisciate) {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td class="col-id"><input type="number" min="0" max="9999" step="1" class="str-id" data-index="${i}" value="${strisciate[i].id ?? i + 1}" /></td>
-      <td><input type="number" step="0.1" class="str-dir" data-index="${i}" value="${strisciate[i].direzione ?? ""}" /></td>
+      <td class="col-dir"><input type="number" step="0.1" class="str-dir" data-index="${i}" value="${strisciate[i].direzione ?? ""}" /></td>
       <td><input type="checkbox" class="str-parziale" data-index="${i}" ${
       strisciate[i].parziale ? "checked" : ""
     } /></td>
@@ -679,6 +680,37 @@ function buildStrisciateRows(strisciate) {
     `;
     dom.strisciateBody.appendChild(row);
   }
+
+  syncStrisciateColumnWidths();
+}
+
+function syncStrisciateColumnWidths() {
+  const table = dom.strisciateBody.closest("table");
+
+  if (!table) {
+    return;
+  }
+
+  const idInputs = dom.strisciateBody.querySelectorAll(".str-id");
+  const dirInputs = dom.strisciateBody.querySelectorAll(".str-dir");
+
+  const idMaxChars = getMaxColumnChars(idInputs, 2);
+  const dirMaxChars = getMaxColumnChars(dirInputs, 18);
+
+  table.style.setProperty("--col-id-ch", String(Math.max(idMaxChars, 2)));
+  table.style.setProperty("--col-dir-ch", String(Math.max(dirMaxChars, 18)));
+}
+
+function getMaxColumnChars(inputs, fallbackChars) {
+  let maxChars = fallbackChars;
+
+  for (const input of inputs) {
+    const valueChars = String(input.value ?? "").trim().length;
+    const placeholderChars = String(input.placeholder ?? "").trim().length;
+    maxChars = Math.max(maxChars, valueChars, placeholderChars);
+  }
+
+  return maxChars;
 }
 
 function setWorkFormEnabled(enabled) {
@@ -950,10 +982,12 @@ function bindEvents() {
       const idValue = Math.max(0, Math.min(9999, Number(event.target.value) || 0));
       active.giornale.strisciate[index].id = idValue;
       event.target.value = String(idValue);
+      syncStrisciateColumnWidths();
     }
 
     if (event.target.classList.contains("str-dir")) {
       active.giornale.strisciate[index].direzione = event.target.value;
+      syncStrisciateColumnWidths();
     }
 
     if (event.target.classList.contains("str-note")) {

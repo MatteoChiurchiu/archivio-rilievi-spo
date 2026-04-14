@@ -380,6 +380,8 @@ table {
   width: 100%;
   border-collapse: collapse;
   min-width: 760px;
+  --col-id-ch: 2;
+  --col-dir-ch: 18;
 }
 
 th,
@@ -391,19 +393,32 @@ td {
 }
 
 .col-id {
-  width: 88px;
-  max-width: 88px;
+  width: calc(var(--col-id-ch) * 1ch + 2.2rem);
+  min-width: calc(var(--col-id-ch) * 1ch + 2.2rem);
+  white-space: nowrap;
 }
 
 td.col-id,
 th.col-id {
-  width: 88px;
-  min-width: 88px;
-  max-width: 88px;
+  width: calc(var(--col-id-ch) * 1ch + 2.2rem);
+  min-width: calc(var(--col-id-ch) * 1ch + 2.2rem);
+}
+
+td.col-dir,
+th.col-dir {
+  width: calc(var(--col-dir-ch) * 1ch + 2.4rem);
+  min-width: calc(var(--col-dir-ch) * 1ch + 2.4rem);
+  white-space: nowrap;
 }
 
 .str-id {
-  max-width: 72px;
+  width: 100%;
+  min-width: 0;
+}
+
+.str-dir {
+  width: 100%;
+  min-width: 0;
 }
 
 .str-note {
