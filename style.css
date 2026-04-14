@@ -406,7 +406,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   min-width: 760px;
-  --col-id-ch: 3;
+  --col-id-ch: 4;
   --col-dir-ch: 4;
 }
 
@@ -419,15 +419,15 @@ td {
 }
 
 .col-id {
-  width: calc(var(--col-id-ch) * 1ch + 2.8rem);
-  min-width: calc(var(--col-id-ch) * 1ch + 2.8rem);
+  width: calc(var(--col-id-ch) * 1ch + 3.4rem);
+  min-width: calc(var(--col-id-ch) * 1ch + 3.4rem);
   white-space: nowrap;
 }
 
 td.col-id,
 th.col-id {
-  width: calc(var(--col-id-ch) * 1ch + 2.8rem);
-  min-width: calc(var(--col-id-ch) * 1ch + 2.8rem);
+  width: calc(var(--col-id-ch) * 1ch + 3.4rem);
+  min-width: calc(var(--col-id-ch) * 1ch + 3.4rem);
 }
 
 td.col-dir,

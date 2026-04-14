@@ -272,7 +272,7 @@ function normalizeLoadedData(raw) {
         ...(c.checks?.montaggio || {}),
       },
     },
-    giornale: normalizeGiornaleData(c.giornale),
+    giornale: normalizeGiornaleData(c.giornale ?? c.giornaleDiLavoro ?? c.workLog ?? c),
     createdAt: c.createdAt || new Date().toISOString(),
     updatedAt: c.updatedAt || new Date().toISOString(),
     updatedBy: c.updatedBy || "",
@@ -333,17 +333,25 @@ function normalizeStateEnvelope(raw) {
 }
 
 function normalizeGiornaleData(giornale) {
-  const base = {
-    ...defaultGiornale(),
-    ...(giornale || {}),
-  };
+  const parsedGiornale = parseMaybeJson(giornale);
+  const source = parsedGiornale && typeof parsedGiornale === "object" ? parsedGiornale : {};
+  const hasExplicitSessioni = Array.isArray(source.sessioni) && source.sessioni.length > 0;
 
-  if (Array.isArray(base.sessioni) && base.sessioni.length > 0) {
+  if (hasExplicitSessioni) {
+    const base = {
+      ...defaultGiornale(),
+      ...source,
+    };
+
     return {
       ...base,
       sessioni: base.sessioni.map((sessione, index) => normalizeSessioneLavoro(sessione, index)),
     };
   }
+
+  const base = {
+    ...source,
+  };
 
   const legacySessione = normalizeSessioneLavoro(
     {
@@ -831,10 +839,10 @@ function syncStrisciateColumnWidths(table) {
   const idInputs = table.querySelectorAll(".str-id");
   const dirInputs = table.querySelectorAll(".str-dir");
 
-  const idMaxChars = getMaxColumnChars(idInputs, 3);
+  const idMaxChars = getMaxColumnChars(idInputs, 4);
   const dirMaxChars = getMaxColumnChars(dirInputs, 4);
 
-  table.style.setProperty("--col-id-ch", String(Math.max(idMaxChars, 3)));
+  table.style.setProperty("--col-id-ch", String(Math.max(idMaxChars, 4)));
   table.style.setProperty("--col-dir-ch", String(Math.max(dirMaxChars, 4)));
 }
 
