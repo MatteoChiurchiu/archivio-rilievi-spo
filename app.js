@@ -63,6 +63,7 @@ const dom = {
   checkMontaggio: document.getElementById("check-montaggio"),
 
   gMeteo: document.getElementById("g-meteo"),
+  gAltezzaNuvole: document.getElementById("g-altezza-nuvole"),
   gFoschia: document.getElementById("g-foschia"),
   giornaleSessions: document.getElementById("giornale-sessions"),
   gNote: document.getElementById("g-note"),
@@ -202,6 +203,7 @@ function normalizeSessioneLavoro(sessione, index) {
 function defaultGiornale() {
   return {
     meteo: "",
+    altezzaNuvoleFt: "",
     foschia: false,
     sessioni: [normalizeSessioneLavoro(defaultSessioneLavoro(), 0)],
     note: "",
@@ -370,6 +372,7 @@ function normalizeGiornaleData(giornale) {
 
   return {
     meteo: base.meteo || "",
+    altezzaNuvoleFt: String(base.altezzaNuvoleFt ?? base.altezzaNuvole ?? ""),
     foschia: Boolean(base.foschia),
     sessioni: [legacySessione],
     note: base.note || "",
@@ -983,6 +986,7 @@ function renderWorkSheet() {
 
   ensureGiornaleSessione(active);
   dom.gMeteo.value = active.giornale.meteo || "";
+  dom.gAltezzaNuvole.value = active.giornale.altezzaNuvoleFt || "";
   dom.gFoschia.checked = Boolean(active.giornale.foschia);
   dom.gNote.value = active.giornale.note || "";
 
@@ -1145,6 +1149,7 @@ function acquireGeolocation() {
 function collectGiornaleFromForm(sessioni) {
   return {
     meteo: dom.gMeteo.value,
+    altezzaNuvoleFt: String(dom.gAltezzaNuvole.value || "").trim(),
     foschia: dom.gFoschia.checked,
     sessioni: Array.isArray(sessioni)
       ? sessioni.map((sessione, index) => normalizeSessioneLavoro(sessione, index))
@@ -1353,6 +1358,16 @@ function bindEvents() {
     if (event.target.id === "g-meteo") {
       active.giornale.meteo = event.target.value;
       markCommessaUpdated(active, "Aggiornamento condizioni meteo");
+      saveState();
+      return;
+    }
+
+    if (event.target.id === "g-altezza-nuvole") {
+      const rawValue = String(event.target.value ?? "").trim();
+      const normalizedValue = rawValue === "" ? "" : String(Math.max(0, Number(rawValue) || 0));
+      event.target.value = normalizedValue;
+      active.giornale.altezzaNuvoleFt = normalizedValue;
+      markCommessaUpdated(active, "Aggiornamento altezza nuvole");
       saveState();
       return;
     }

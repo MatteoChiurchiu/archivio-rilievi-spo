@@ -432,8 +432,8 @@ th.col-id {
 
 td.col-dir,
 th.col-dir {
-  width: calc(var(--col-dir-ch) * 1ch + 4.2rem);
-  min-width: calc(var(--col-dir-ch) * 1ch + 4.2rem);
+  width: calc(var(--col-dir-ch) * 1ch + 5.2rem);
+  min-width: calc(var(--col-dir-ch) * 1ch + 5.2rem);
   white-space: nowrap;
 }
 
@@ -443,9 +443,20 @@ th.col-dir {
 }
 
 .str-dir {
-  width: calc(var(--col-dir-ch) * 1ch + 0.9rem);
+  width: calc(var(--col-dir-ch) * 1ch + 2rem);
   min-width: 0;
   text-align: right;
+}
+
+.unit-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unit-tag {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .dir-field {
