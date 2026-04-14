@@ -9,6 +9,7 @@ const HARDWARE_ITEMS = [
   { key: "cinghie", label: "Cinghie ancoraggio" },
   { key: "prolunghe", label: "Prolunghe elettriche" },
   { key: "ssdControlBox", label: "Dischi SSD control box" },
+  { key: "adattatoriSsd", label: "Adattatori SSD" },
   { key: "dischiBackup", label: "Dischi backup e docker station" },
   { key: "computer", label: "Computer" },
 ];
@@ -67,7 +68,9 @@ const dom = {
   gNumStrisciate: document.getElementById("g-num-strisciate"),
   strisciateBody: document.getElementById("strisciate-body"),
   gFineLavori: document.getElementById("g-fine-lavori"),
+  gMeteo: document.getElementById("g-meteo"),
   gGlobalMapper: document.getElementById("g-global-mapper"),
+  gFoschia: document.getElementById("g-foschia"),
   gAtterraggio: document.getElementById("g-atterraggio"),
   gSpegnimento: document.getElementById("g-spegnimento"),
   gNote: document.getElementById("g-note"),
@@ -157,7 +160,9 @@ function defaultGiornale() {
     numeroStrisciate: 0,
     strisciate: [],
     fineLavori: "",
+    meteo: "",
     globalMapper: false,
+    foschia: false,
     atterraggio: "",
     spegnimentoMotori: "",
     note: "",
@@ -669,7 +674,7 @@ function buildStrisciateRows(strisciate) {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td class="col-id"><input type="number" min="0" max="9999" step="1" class="str-id" data-index="${i}" value="${strisciate[i].id ?? i + 1}" /></td>
-      <td class="col-dir"><input type="number" step="0.1" class="str-dir" data-index="${i}" value="${strisciate[i].direzione ?? ""}" /></td>
+      <td class="col-dir"><div class="dir-field"><input type="number" min="0" max="360" step="1" class="str-dir" data-index="${i}" value="${strisciate[i].direzione ?? ""}" /><span class="dir-unit">deg</span></div></td>
       <td><input type="checkbox" class="str-parziale" data-index="${i}" ${
       strisciate[i].parziale ? "checked" : ""
     } /></td>
@@ -694,11 +699,11 @@ function syncStrisciateColumnWidths() {
   const idInputs = dom.strisciateBody.querySelectorAll(".str-id");
   const dirInputs = dom.strisciateBody.querySelectorAll(".str-dir");
 
-  const idMaxChars = getMaxColumnChars(idInputs, 2);
-  const dirMaxChars = getMaxColumnChars(dirInputs, 18);
+  const idMaxChars = getMaxColumnChars(idInputs, 3);
+  const dirMaxChars = getMaxColumnChars(dirInputs, 4);
 
-  table.style.setProperty("--col-id-ch", String(Math.max(idMaxChars, 2)));
-  table.style.setProperty("--col-dir-ch", String(Math.max(dirMaxChars, 18)));
+  table.style.setProperty("--col-id-ch", String(Math.max(idMaxChars, 3)));
+  table.style.setProperty("--col-dir-ch", String(Math.max(dirMaxChars, 4)));
 }
 
 function getMaxColumnChars(inputs, fallbackChars) {
@@ -760,7 +765,9 @@ function renderWorkSheet() {
   dom.gInizioAcq.value = active.giornale.inizioAcquisizioneFoto || "";
   dom.gNumStrisciate.value = String(active.giornale.numeroStrisciate || 0);
   dom.gFineLavori.value = active.giornale.fineLavori || "";
+  dom.gMeteo.value = active.giornale.meteo || "";
   dom.gGlobalMapper.checked = Boolean(active.giornale.globalMapper);
+  dom.gFoschia.checked = Boolean(active.giornale.foschia);
   dom.gAtterraggio.value = active.giornale.atterraggio || "";
   dom.gSpegnimento.value = active.giornale.spegnimentoMotori || "";
   dom.gNote.value = active.giornale.note || "";
@@ -931,7 +938,9 @@ function collectGiornaleFromForm(existingStrisciate) {
     numeroStrisciate: Number(dom.gNumStrisciate.value) || 0,
     strisciate: existingStrisciate,
     fineLavori: dom.gFineLavori.value,
+    meteo: dom.gMeteo.value,
     globalMapper: dom.gGlobalMapper.checked,
+    foschia: dom.gFoschia.checked,
     atterraggio: dom.gAtterraggio.value,
     spegnimentoMotori: dom.gSpegnimento.value,
     note: dom.gNote.value.trim(),
@@ -986,7 +995,14 @@ function bindEvents() {
     }
 
     if (event.target.classList.contains("str-dir")) {
-      active.giornale.strisciate[index].direzione = event.target.value;
+      const rawDir = String(event.target.value ?? "").trim();
+      if (rawDir === "") {
+        active.giornale.strisciate[index].direzione = "";
+      } else {
+        const dirValue = Math.max(0, Math.min(360, Number(rawDir) || 0));
+        active.giornale.strisciate[index].direzione = dirValue;
+        event.target.value = String(dirValue);
+      }
       syncStrisciateColumnWidths();
     }
 

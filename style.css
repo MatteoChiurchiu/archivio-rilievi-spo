@@ -380,8 +380,8 @@ table {
   width: 100%;
   border-collapse: collapse;
   min-width: 760px;
-  --col-id-ch: 2;
-  --col-dir-ch: 18;
+  --col-id-ch: 3;
+  --col-dir-ch: 4;
 }
 
 th,
@@ -393,21 +393,21 @@ td {
 }
 
 .col-id {
-  width: calc(var(--col-id-ch) * 1ch + 2.2rem);
-  min-width: calc(var(--col-id-ch) * 1ch + 2.2rem);
+  width: calc(var(--col-id-ch) * 1ch + 2.8rem);
+  min-width: calc(var(--col-id-ch) * 1ch + 2.8rem);
   white-space: nowrap;
 }
 
 td.col-id,
 th.col-id {
-  width: calc(var(--col-id-ch) * 1ch + 2.2rem);
-  min-width: calc(var(--col-id-ch) * 1ch + 2.2rem);
+  width: calc(var(--col-id-ch) * 1ch + 2.8rem);
+  min-width: calc(var(--col-id-ch) * 1ch + 2.8rem);
 }
 
 td.col-dir,
 th.col-dir {
-  width: calc(var(--col-dir-ch) * 1ch + 2.4rem);
-  min-width: calc(var(--col-dir-ch) * 1ch + 2.4rem);
+  width: calc(var(--col-dir-ch) * 1ch + 4.2rem);
+  min-width: calc(var(--col-dir-ch) * 1ch + 4.2rem);
   white-space: nowrap;
 }
 
@@ -417,8 +417,20 @@ th.col-dir {
 }
 
 .str-dir {
-  width: 100%;
+  width: calc(var(--col-dir-ch) * 1ch + 0.9rem);
   min-width: 0;
+  text-align: right;
+}
+
+.dir-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dir-unit {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .str-note {

@@ -92,7 +92,7 @@
             </label>
           </div>
 
-          <h3 class="section-title">Check Hardware</h3>
+          <h3 class="section-title">Check Trasporto</h3>
           <div id="check-hardware" class="check-grid"></div>
 
           <h3 class="section-title">Check Montaggio</h3>
@@ -123,7 +123,7 @@
               <thead>
                 <tr>
                   <th class="col-id">ID</th>
-                  <th class="col-dir">Direzione (angolo)</th>
+                  <th class="col-dir">Direzione (deg)</th>
                   <th>Parziale</th>
                   <th>Completa</th>
                   <th>Note</th>
@@ -142,9 +142,23 @@
               Fine lavori
               <input id="g-fine-lavori" type="time" />
             </label>
+            <label>
+              Meteo
+              <select id="g-meteo">
+                <option value="">Seleziona meteo</option>
+                <option value="soleggiato">Soleggiato</option>
+                <option value="parzialmente nuvoloso">Parzialmente nuvoloso</option>
+                <option value="nuvoloso">Nuvoloso</option>
+                <option value="pioggia">Pioggia</option>
+              </select>
+            </label>
             <label class="check-inline">
               <input id="g-global-mapper" type="checkbox" />
               Check GLOBAL MAPPER
+            </label>
+            <label class="check-inline">
+              <input id="g-foschia" type="checkbox" />
+              Foschia
             </label>
             <label>
               Atterraggio
