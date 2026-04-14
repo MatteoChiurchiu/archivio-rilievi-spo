@@ -62,17 +62,9 @@ const dom = {
   checkHardware: document.getElementById("check-hardware"),
   checkMontaggio: document.getElementById("check-montaggio"),
 
-  gAccensione: document.getElementById("g-accensione"),
-  gDecollo: document.getElementById("g-decollo"),
-  gInizioAcq: document.getElementById("g-inizio-acq"),
-  gNumStrisciate: document.getElementById("g-num-strisciate"),
-  strisciateBody: document.getElementById("strisciate-body"),
-  gFineLavori: document.getElementById("g-fine-lavori"),
   gMeteo: document.getElementById("g-meteo"),
-  gGlobalMapper: document.getElementById("g-global-mapper"),
   gFoschia: document.getElementById("g-foschia"),
-  gAtterraggio: document.getElementById("g-atterraggio"),
-  gSpegnimento: document.getElementById("g-spegnimento"),
+  giornaleSessions: document.getElementById("giornale-sessions"),
   gNote: document.getElementById("g-note"),
   historyList: document.getElementById("history-list"),
 
@@ -152,7 +144,17 @@ function emptyChecks(items) {
   return out;
 }
 
-function defaultGiornale() {
+function defaultStrisciata(index) {
+  return {
+    id: index + 1,
+    direzione: "",
+    parziale: false,
+    completa: false,
+    note: "",
+  };
+}
+
+function defaultSessioneLavoro() {
   return {
     accensioneMotore: "",
     decollo: "",
@@ -160,11 +162,48 @@ function defaultGiornale() {
     numeroStrisciate: 0,
     strisciate: [],
     fineLavori: "",
-    meteo: "",
     globalMapper: false,
-    foschia: false,
     atterraggio: "",
     spegnimentoMotori: "",
+  };
+}
+
+function normalizeSessioneLavoro(sessione, index) {
+  const merged = {
+    ...defaultSessioneLavoro(),
+    ...(sessione || {}),
+  };
+
+  const safeCount = Math.max(0, Number(merged.numeroStrisciate) || 0);
+  const old = Array.isArray(merged.strisciate) ? merged.strisciate : [];
+  const next = [];
+
+  for (let i = 0; i < safeCount; i += 1) {
+    const row = old[i] || defaultStrisciata(i);
+    next.push({
+      ...defaultStrisciata(i),
+      ...row,
+      id: Number(row.id) || i + 1,
+      direzione: row.direzione ?? "",
+      parziale: Boolean(row.parziale),
+      completa: Boolean(row.completa),
+      note: String(row.note ?? ""),
+    });
+  }
+
+  return {
+    ...merged,
+    sessioneNumero: index + 1,
+    numeroStrisciate: safeCount,
+    strisciate: next,
+  };
+}
+
+function defaultGiornale() {
+  return {
+    meteo: "",
+    foschia: false,
+    sessioni: [normalizeSessioneLavoro(defaultSessioneLavoro(), 0)],
     note: "",
   };
 }
@@ -232,16 +271,48 @@ function normalizeLoadedData(raw) {
         ...(c.checks?.montaggio || {}),
       },
     },
-    giornale: {
-      ...defaultGiornale(),
-      ...(c.giornale || {}),
-      strisciate: Array.isArray(c.giornale?.strisciate) ? c.giornale.strisciate : [],
-    },
+    giornale: normalizeGiornaleData(c.giornale),
     createdAt: c.createdAt || new Date().toISOString(),
     updatedAt: c.updatedAt || new Date().toISOString(),
     updatedBy: c.updatedBy || "",
     history: Array.isArray(c.history) ? c.history : [],
   }));
+}
+
+function normalizeGiornaleData(giornale) {
+  const base = {
+    ...defaultGiornale(),
+    ...(giornale || {}),
+  };
+
+  if (Array.isArray(base.sessioni) && base.sessioni.length > 0) {
+    return {
+      ...base,
+      sessioni: base.sessioni.map((sessione, index) => normalizeSessioneLavoro(sessione, index)),
+    };
+  }
+
+  const legacySessione = normalizeSessioneLavoro(
+    {
+      accensioneMotore: base.accensioneMotore || "",
+      decollo: base.decollo || "",
+      inizioAcquisizioneFoto: base.inizioAcquisizioneFoto || "",
+      numeroStrisciate: Number(base.numeroStrisciate) || 0,
+      strisciate: Array.isArray(base.strisciate) ? base.strisciate : [],
+      fineLavori: base.fineLavori || "",
+      globalMapper: Boolean(base.globalMapper),
+      atterraggio: base.atterraggio || "",
+      spegnimentoMotori: base.spegnimentoMotori || "",
+    },
+    0
+  );
+
+  return {
+    meteo: base.meteo || "",
+    foschia: Boolean(base.foschia),
+    sessioni: [legacySessione],
+    note: base.note || "",
+  };
 }
 
 function loadState() {
@@ -648,56 +719,56 @@ function renderCommesse() {
 function renderChecklist(container, items, group, data) {
   container.innerHTML = "";
 
-  for (const item of items) {
+  items.forEach((item, index) => {
     const label = document.createElement("label");
     label.className = "check-inline";
     label.innerHTML = `
+      <span class="check-order">${index + 1}.</span>
       <input type="checkbox" data-check-group="${group}" data-check-key="${item.key}" ${
       data[item.key] ? "checked" : ""
     } />
       ${item.label}
     `;
     container.appendChild(label);
-  }
+  });
 }
 
-function buildStrisciateRows(strisciate) {
-  dom.strisciateBody.innerHTML = "";
+function buildStrisciateRows(tbody, strisciate, sessionIndex) {
+  tbody.innerHTML = "";
 
   if (strisciate.length === 0) {
-    dom.strisciateBody.innerHTML = "<tr><td colspan=\"5\">Nessuna strisciata. Inserisci il numero sopra.</td></tr>";
-    syncStrisciateColumnWidths();
+    tbody.innerHTML = "<tr><td colspan=\"5\">Nessuna strisciata. Inserisci il numero sopra.</td></tr>";
+    syncStrisciateColumnWidths(tbody.closest("table"));
     return;
   }
 
   for (let i = 0; i < strisciate.length; i += 1) {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td class="col-id"><input type="number" min="0" max="9999" step="1" class="str-id" data-index="${i}" value="${strisciate[i].id ?? i + 1}" /></td>
-      <td class="col-dir"><div class="dir-field"><input type="number" min="0" max="360" step="1" class="str-dir" data-index="${i}" value="${strisciate[i].direzione ?? ""}" /><span class="dir-unit">deg</span></div></td>
-      <td><input type="checkbox" class="str-parziale" data-index="${i}" ${
+      <td class="col-id"><input type="number" min="0" max="9999" step="1" class="str-id" data-session-index="${sessionIndex}" data-index="${i}" value="${strisciate[i].id ?? i + 1}" /></td>
+      <td class="col-dir"><div class="dir-field"><input type="number" min="0" max="360" step="1" class="str-dir" data-session-index="${sessionIndex}" data-index="${i}" value="${strisciate[i].direzione ?? ""}" /><span class="dir-unit">deg</span></div></td>
+      <td><input type="checkbox" class="str-parziale" data-session-index="${sessionIndex}" data-index="${i}" ${
       strisciate[i].parziale ? "checked" : ""
     } /></td>
-      <td><input type="checkbox" class="str-completa" data-index="${i}" ${
+      <td><input type="checkbox" class="str-completa" data-session-index="${sessionIndex}" data-index="${i}" ${
       strisciate[i].completa ? "checked" : ""
     } /></td>
-      <td><input type="text" class="str-note" data-index="${i}" value="${strisciate[i].note ?? ""}" placeholder="Note" /></td>
+      <td><input type="text" class="str-note" data-session-index="${sessionIndex}" data-index="${i}" value="${strisciate[i].note ?? ""}" placeholder="Note" /></td>
     `;
-    dom.strisciateBody.appendChild(row);
+    tbody.appendChild(row);
   }
 
-  syncStrisciateColumnWidths();
+  syncStrisciateColumnWidths(tbody.closest("table"));
 }
 
-function syncStrisciateColumnWidths() {
-  const table = dom.strisciateBody.closest("table");
+function syncStrisciateColumnWidths(table) {
 
   if (!table) {
     return;
   }
 
-  const idInputs = dom.strisciateBody.querySelectorAll(".str-id");
-  const dirInputs = dom.strisciateBody.querySelectorAll(".str-dir");
+  const idInputs = table.querySelectorAll(".str-id");
+  const dirInputs = table.querySelectorAll(".str-dir");
 
   const idMaxChars = getMaxColumnChars(idInputs, 3);
   const dirMaxChars = getMaxColumnChars(dirInputs, 4);
@@ -716,6 +787,87 @@ function getMaxColumnChars(inputs, fallbackChars) {
   }
 
   return maxChars;
+}
+
+function renderGiornaleSessioni(sessioni) {
+  dom.giornaleSessions.innerHTML = "";
+
+  sessioni.forEach((sessione, index) => {
+    const section = document.createElement("section");
+    section.className = "giornale-session";
+    section.dataset.sessionIndex = String(index);
+
+    section.innerHTML = `
+      <h4 class="session-title">Sessione lavoro ${index + 1}</h4>
+      <div class="grid-2">
+        <label>
+          Accensione motore
+          <input type="time" class="g-accensione" data-session-index="${index}" value="${sessione.accensioneMotore || ""}" />
+        </label>
+        <label>
+          Decollo
+          <input type="time" class="g-decollo" data-session-index="${index}" value="${sessione.decollo || ""}" />
+        </label>
+        <label>
+          Inizio acquisizione foto
+          <input type="time" class="g-inizio-acq" data-session-index="${index}" value="${sessione.inizioAcquisizioneFoto || ""}" />
+        </label>
+        <label>
+          Numero strisciate
+          <input type="number" min="0" step="1" class="g-num-strisciate" data-session-index="${index}" value="${sessione.numeroStrisciate || 0}" />
+        </label>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-id">ID</th>
+              <th class="col-dir">Direzione (deg)</th>
+              <th>Parziale</th>
+              <th>Completa</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody class="strisciate-body"></tbody>
+        </table>
+      </div>
+
+      <div class="grid-2">
+        <label>
+          Fine lavori
+          <input type="time" class="g-fine-lavori" data-session-index="${index}" value="${sessione.fineLavori || ""}" />
+        </label>
+        <label class="check-inline">
+          <input type="checkbox" class="g-global-mapper" data-session-index="${index}" ${
+            sessione.globalMapper ? "checked" : ""
+          } />
+          Check GLOBAL MAPPER
+        </label>
+        <label>
+          Atterraggio
+          <input type="time" class="g-atterraggio" data-session-index="${index}" value="${sessione.atterraggio || ""}" />
+        </label>
+        <label>
+          Spegnimento motori
+          <input type="time" class="g-spegnimento" data-session-index="${index}" value="${sessione.spegnimentoMotori || ""}" />
+        </label>
+      </div>
+
+      <button type="button" class="btn ghost add-session-btn" data-session-index="${index}">Interruzione/Ripresa lavoro</button>
+    `;
+
+    dom.giornaleSessions.appendChild(section);
+
+    const tbody = section.querySelector(".strisciate-body");
+    buildStrisciateRows(tbody, sessione.strisciate || [], index);
+  });
+}
+
+function ensureGiornaleSessione(active) {
+  if (!Array.isArray(active.giornale.sessioni) || active.giornale.sessioni.length === 0) {
+    active.giornale.sessioni = [normalizeSessioneLavoro(defaultSessioneLavoro(), 0)];
+  }
 }
 
 function setWorkFormEnabled(enabled) {
@@ -738,7 +890,7 @@ function renderWorkSheet() {
     dom.posizione.value = "";
     renderChecklist(dom.checkHardware, HARDWARE_ITEMS, "hardware", emptyChecks(HARDWARE_ITEMS));
     renderChecklist(dom.checkMontaggio, MONTAGGIO_ITEMS, "montaggio", emptyChecks(MONTAGGIO_ITEMS));
-    buildStrisciateRows([]);
+    dom.giornaleSessions.innerHTML = "";
     renderCommessaHistory(null);
     setWorkFormEnabled(false);
     return;
@@ -760,19 +912,12 @@ function renderWorkSheet() {
   renderChecklist(dom.checkHardware, HARDWARE_ITEMS, "hardware", active.checks.hardware);
   renderChecklist(dom.checkMontaggio, MONTAGGIO_ITEMS, "montaggio", active.checks.montaggio);
 
-  dom.gAccensione.value = active.giornale.accensioneMotore || "";
-  dom.gDecollo.value = active.giornale.decollo || "";
-  dom.gInizioAcq.value = active.giornale.inizioAcquisizioneFoto || "";
-  dom.gNumStrisciate.value = String(active.giornale.numeroStrisciate || 0);
-  dom.gFineLavori.value = active.giornale.fineLavori || "";
+  ensureGiornaleSessione(active);
   dom.gMeteo.value = active.giornale.meteo || "";
-  dom.gGlobalMapper.checked = Boolean(active.giornale.globalMapper);
   dom.gFoschia.checked = Boolean(active.giornale.foschia);
-  dom.gAtterraggio.value = active.giornale.atterraggio || "";
-  dom.gSpegnimento.value = active.giornale.spegnimentoMotori || "";
   dom.gNote.value = active.giornale.note || "";
 
-  buildStrisciateRows(active.giornale.strisciate || []);
+  renderGiornaleSessioni(active.giornale.sessioni);
   renderCommessaHistory(active);
 }
 
@@ -859,33 +1004,31 @@ async function deleteCommessa(commessaId) {
   }
 }
 
-function adjustStrisciate(count) {
-  const active = getActiveCommessa();
-  if (!active) {
+function adjustStrisciateSessione(active, sessionIndex, count, sessionElement) {
+  ensureGiornaleSessione(active);
+
+  const sessione = active.giornale.sessioni[sessionIndex];
+  if (!sessione) {
     return;
   }
 
   const safeCount = Math.max(0, Number(count) || 0);
-  const old = Array.isArray(active.giornale.strisciate) ? active.giornale.strisciate : [];
+  const old = Array.isArray(sessione.strisciate) ? sessione.strisciate : [];
   const next = [];
 
   for (let i = 0; i < safeCount; i += 1) {
-    next.push(
-      old[i] || {
-        id: i + 1,
-        direzione: "",
-        parziale: false,
-        completa: false,
-        note: "",
-      }
-    );
+    next.push(old[i] || defaultStrisciata(i));
   }
 
-  active.giornale.numeroStrisciate = safeCount;
-  active.giornale.strisciate = next;
-  markCommessaUpdated(active, `Aggiornamento strisciate: ${safeCount}`);
+  sessione.numeroStrisciate = safeCount;
+  sessione.strisciate = next;
+  markCommessaUpdated(active, `Aggiornamento strisciate sessione ${sessionIndex + 1}: ${safeCount}`);
   saveState();
-  buildStrisciateRows(next);
+
+  const tbody = sessionElement.querySelector(".strisciate-body");
+  if (tbody) {
+    buildStrisciateRows(tbody, next, sessionIndex);
+  }
 }
 
 function acquireGeolocation() {
@@ -930,19 +1073,13 @@ function acquireGeolocation() {
   );
 }
 
-function collectGiornaleFromForm(existingStrisciate) {
+function collectGiornaleFromForm(sessioni) {
   return {
-    accensioneMotore: dom.gAccensione.value,
-    decollo: dom.gDecollo.value,
-    inizioAcquisizioneFoto: dom.gInizioAcq.value,
-    numeroStrisciate: Number(dom.gNumStrisciate.value) || 0,
-    strisciate: existingStrisciate,
-    fineLavori: dom.gFineLavori.value,
     meteo: dom.gMeteo.value,
-    globalMapper: dom.gGlobalMapper.checked,
     foschia: dom.gFoschia.checked,
-    atterraggio: dom.gAtterraggio.value,
-    spegnimentoMotori: dom.gSpegnimento.value,
+    sessioni: Array.isArray(sessioni)
+      ? sessioni.map((sessione, index) => normalizeSessioneLavoro(sessione, index))
+      : [normalizeSessioneLavoro(defaultSessioneLavoro(), 0)],
     note: dom.gNote.value.trim(),
   };
 }
@@ -972,69 +1109,161 @@ function bindEvents() {
 
   dom.geoBtn.addEventListener("click", acquireGeolocation);
 
-  dom.gNumStrisciate.addEventListener("input", () => {
-    adjustStrisciate(dom.gNumStrisciate.value);
-  });
-
-  dom.strisciateBody.addEventListener("input", (event) => {
+  dom.giornaleSessions.addEventListener("input", (event) => {
     const active = getActiveCommessa();
     if (!active) {
       return;
     }
 
-    const index = Number(event.target.dataset.index);
-    if (!Number.isInteger(index) || !active.giornale.strisciate[index]) {
+    ensureGiornaleSessione(active);
+
+    const target = event.target;
+    const sessionIndex = Number(target.dataset.sessionIndex);
+    const sessionElement = target.closest(".giornale-session");
+    const sessione = active.giornale.sessioni[sessionIndex];
+
+    if (!Number.isInteger(sessionIndex) || !sessione || !sessionElement) {
       return;
     }
 
-    if (event.target.classList.contains("str-id")) {
-      const idValue = Math.max(0, Math.min(9999, Number(event.target.value) || 0));
-      active.giornale.strisciate[index].id = idValue;
-      event.target.value = String(idValue);
-      syncStrisciateColumnWidths();
+    if (target.classList.contains("g-accensione")) {
+      sessione.accensioneMotore = target.value;
+      markCommessaUpdated(active, `Accensione sessione ${sessionIndex + 1}`);
+      saveState();
+      return;
     }
 
-    if (event.target.classList.contains("str-dir")) {
-      const rawDir = String(event.target.value ?? "").trim();
+    if (target.classList.contains("g-decollo")) {
+      sessione.decollo = target.value;
+      markCommessaUpdated(active, `Decollo sessione ${sessionIndex + 1}`);
+      saveState();
+      return;
+    }
+
+    if (target.classList.contains("g-inizio-acq")) {
+      sessione.inizioAcquisizioneFoto = target.value;
+      markCommessaUpdated(active, `Inizio acquisizione sessione ${sessionIndex + 1}`);
+      saveState();
+      return;
+    }
+
+    if (target.classList.contains("g-num-strisciate")) {
+      adjustStrisciateSessione(active, sessionIndex, target.value, sessionElement);
+      return;
+    }
+
+    if (target.classList.contains("g-fine-lavori")) {
+      sessione.fineLavori = target.value;
+      markCommessaUpdated(active, `Fine lavori sessione ${sessionIndex + 1}`);
+      saveState();
+      return;
+    }
+
+    if (target.classList.contains("g-atterraggio")) {
+      sessione.atterraggio = target.value;
+      markCommessaUpdated(active, `Atterraggio sessione ${sessionIndex + 1}`);
+      saveState();
+      return;
+    }
+
+    if (target.classList.contains("g-spegnimento")) {
+      sessione.spegnimentoMotori = target.value;
+      markCommessaUpdated(active, `Spegnimento sessione ${sessionIndex + 1}`);
+      saveState();
+      return;
+    }
+
+    const index = Number(target.dataset.index);
+    if (!Number.isInteger(index) || !sessione.strisciate[index]) {
+      return;
+    }
+
+    if (target.classList.contains("str-id")) {
+      const idValue = Math.max(0, Math.min(9999, Number(target.value) || 0));
+      sessione.strisciate[index].id = idValue;
+      target.value = String(idValue);
+      syncStrisciateColumnWidths(sessionElement.querySelector("table"));
+    }
+
+    if (target.classList.contains("str-dir")) {
+      const rawDir = String(target.value ?? "").trim();
       if (rawDir === "") {
-        active.giornale.strisciate[index].direzione = "";
+        sessione.strisciate[index].direzione = "";
       } else {
         const dirValue = Math.max(0, Math.min(360, Number(rawDir) || 0));
-        active.giornale.strisciate[index].direzione = dirValue;
-        event.target.value = String(dirValue);
+        sessione.strisciate[index].direzione = dirValue;
+        target.value = String(dirValue);
       }
-      syncStrisciateColumnWidths();
+      syncStrisciateColumnWidths(sessionElement.querySelector("table"));
     }
 
-    if (event.target.classList.contains("str-note")) {
-      active.giornale.strisciate[index].note = event.target.value;
+    if (target.classList.contains("str-note")) {
+      sessione.strisciate[index].note = target.value;
     }
 
-    markCommessaUpdated(active, `Modifica riga strisciata ${index + 1}`);
+    markCommessaUpdated(active, `Modifica riga ${index + 1} sessione ${sessionIndex + 1}`);
     saveState();
   });
 
-  dom.strisciateBody.addEventListener("change", (event) => {
+  dom.giornaleSessions.addEventListener("change", (event) => {
     const active = getActiveCommessa();
     if (!active) {
       return;
     }
 
-    const index = Number(event.target.dataset.index);
-    if (!Number.isInteger(index) || !active.giornale.strisciate[index]) {
+    ensureGiornaleSessione(active);
+
+    const target = event.target;
+    const sessionIndex = Number(target.dataset.sessionIndex);
+    const sessione = active.giornale.sessioni[sessionIndex];
+
+    if (!Number.isInteger(sessionIndex) || !sessione) {
       return;
     }
 
-    if (event.target.classList.contains("str-parziale")) {
-      active.giornale.strisciate[index].parziale = event.target.checked;
+    if (target.classList.contains("g-global-mapper")) {
+      sessione.globalMapper = target.checked;
+      markCommessaUpdated(active, `Global Mapper sessione ${sessionIndex + 1}`);
+      saveState();
+      return;
     }
 
-    if (event.target.classList.contains("str-completa")) {
-      active.giornale.strisciate[index].completa = event.target.checked;
+    const index = Number(target.dataset.index);
+    if (!Number.isInteger(index) || !sessione.strisciate[index]) {
+      return;
     }
 
-    markCommessaUpdated(active, `Spunte riga strisciata ${index + 1}`);
+    if (target.classList.contains("str-parziale")) {
+      sessione.strisciate[index].parziale = target.checked;
+    }
+
+    if (target.classList.contains("str-completa")) {
+      sessione.strisciate[index].completa = target.checked;
+    }
+
+    markCommessaUpdated(active, `Spunte riga ${index + 1} sessione ${sessionIndex + 1}`);
     saveState();
+  });
+
+  dom.giornaleSessions.addEventListener("click", (event) => {
+    const trigger = event.target.closest(".add-session-btn");
+    if (!trigger) {
+      return;
+    }
+
+    const active = getActiveCommessa();
+    if (!active) {
+      return;
+    }
+
+    ensureGiornaleSessione(active);
+    active.giornale.sessioni.push(
+      normalizeSessioneLavoro(defaultSessioneLavoro(), active.giornale.sessioni.length)
+    );
+
+    markCommessaUpdated(active, `Interruzione/ripresa: aggiunta sessione ${active.giornale.sessioni.length}`);
+    saveState();
+    renderWorkSheet();
   });
 
   dom.workForm.addEventListener("change", (event) => {
@@ -1048,6 +1277,32 @@ function bindEvents() {
     if (checkGroup && checkKey) {
       active.checks[checkGroup][checkKey] = event.target.checked;
       markCommessaUpdated(active, `Check ${checkGroup}: ${checkKey}`);
+      saveState();
+      return;
+    }
+
+    if (event.target.id === "g-meteo") {
+      active.giornale.meteo = event.target.value;
+      markCommessaUpdated(active, "Aggiornamento condizioni meteo");
+      saveState();
+      return;
+    }
+
+    if (event.target.id === "g-foschia") {
+      active.giornale.foschia = event.target.checked;
+      markCommessaUpdated(active, "Aggiornamento foschia");
+      saveState();
+    }
+  });
+
+  dom.workForm.addEventListener("input", (event) => {
+    const active = getActiveCommessa();
+    if (!active) {
+      return;
+    }
+
+    if (event.target.id === "g-note") {
+      active.giornale.note = event.target.value;
       saveState();
     }
   });
@@ -1063,7 +1318,7 @@ function bindEvents() {
 
     active.localita = dom.localita.value.trim();
     active.data = dom.data.value;
-    active.giornale = collectGiornaleFromForm(active.giornale.strisciate || []);
+    active.giornale = collectGiornaleFromForm(active.giornale.sessioni || []);
     markCommessaUpdated(active, "Salvataggio scheda commessa");
 
     saveState();

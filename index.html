@@ -101,48 +101,6 @@
           <h3 class="section-title">Giornale di Lavoro</h3>
           <div class="grid-2">
             <label>
-              Accensione motore
-              <input id="g-accensione" type="time" />
-            </label>
-            <label>
-              Decollo
-              <input id="g-decollo" type="time" />
-            </label>
-            <label>
-              Inizio acquisizione foto
-              <input id="g-inizio-acq" type="time" />
-            </label>
-            <label>
-              Numero strisciate
-              <input id="g-num-strisciate" type="number" min="0" step="1" value="0" />
-            </label>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th class="col-id">ID</th>
-                  <th class="col-dir">Direzione (deg)</th>
-                  <th>Parziale</th>
-                  <th>Completa</th>
-                  <th>Note</th>
-                </tr>
-              </thead>
-              <tbody id="strisciate-body">
-                <tr>
-                  <td colspan="5">Nessuna strisciata. Inserisci il numero sopra.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="grid-2">
-            <label>
-              Fine lavori
-              <input id="g-fine-lavori" type="time" />
-            </label>
-            <label>
               Meteo
               <select id="g-meteo">
                 <option value="">Seleziona meteo</option>
@@ -160,15 +118,9 @@
               <input id="g-foschia" type="checkbox" />
               Foschia
             </label>
-            <label>
-              Atterraggio
-              <input id="g-atterraggio" type="time" />
-            </label>
-            <label>
-              Spegnimento motori
-              <input id="g-spegnimento" type="time" />
-            </label>
           </div>
+
+          <div id="giornale-sessions" class="giornale-sessions"></div>
 
           <label>
             Note

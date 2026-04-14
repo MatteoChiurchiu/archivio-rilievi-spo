@@ -353,8 +353,34 @@ label {
 
 .check-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 8px;
+}
+
+.check-order {
+  min-width: 1.6rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.giornale-sessions {
+  display: grid;
+  gap: 12px;
+}
+
+.giornale-session {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.68);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.session-title {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 15px;
 }
 
 .check-inline {
