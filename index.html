@@ -18,15 +18,22 @@
 
     <header class="topbar">
       <div>
-        <p class="eyebrow">Gestione Operativa</p>
-        <h1>Archivio Rilievi SPO</h1>
+        <p class="eyebrow" data-i18n="eyebrow">Gestione Operativa</p>
+        <h1 data-i18n="appTitle">Archivio Rilievi SPO</h1>
       </div>
       <div class="topbar-actions">
         <span id="user-badge" class="chip muted">Utente non autenticato</span>
-        <button id="change-user" class="btn ghost">Cambia utente</button>
-        <button id="print-pdf" class="btn ghost">Stampa PDF</button>
-        <button id="export-data" class="btn ghost">Esporta JSON</button>
-        <label class="btn ghost file-input-label" for="import-data">Importa JSON</label>
+        <label class="language-switch" for="language-select">
+          <span data-i18n="languageLabel">Lingua</span>
+          <select id="language-select">
+            <option value="it">IT</option>
+            <option value="en">EN</option>
+          </select>
+        </label>
+        <button id="change-user" class="btn ghost" data-i18n="changeUser">Cambia utente</button>
+        <button id="print-pdf" class="btn ghost" data-i18n="printPdf">Stampa PDF</button>
+        <button id="export-data" class="btn ghost" data-i18n="exportJson">Esporta JSON</button>
+        <label class="btn ghost file-input-label" for="import-data" data-i18n="importJson">Importa JSON</label>
         <input id="import-data" type="file" accept="application/json" />
       </div>
     </header>
@@ -34,30 +41,31 @@
     <main class="layout">
       <aside class="panel commesse-panel">
         <div class="panel-head">
-          <h2>Commesse</h2>
+          <h2 data-i18n="jobsTitle">Commesse</h2>
           <span id="commesse-count" class="chip">0</span>
         </div>
 
         <form id="commessa-form" class="stack-form">
-          <input id="commessa-codice" type="text" placeholder="Codice commessa" required />
-          <input id="commessa-nome" type="text" placeholder="Nome commessa" required />
-          <input id="commessa-cliente" type="text" placeholder="Cliente" required />
+          <input id="commessa-codice" type="text" placeholder="Codice commessa" data-i18n-placeholder="jobCodePlaceholder" required />
+          <input id="commessa-nome" type="text" placeholder="Nome commessa" data-i18n-placeholder="jobNamePlaceholder" required />
+          <input id="commessa-cliente" type="text" placeholder="Cliente" data-i18n-placeholder="clientPlaceholder" required />
           <div class="form-actions">
-            <button id="commessa-save-btn" type="submit" class="btn primary">Crea commessa</button>
-            <button id="commessa-cancel-edit" type="button" class="btn ghost hidden">Annulla modifica</button>
+            <button id="commessa-save-btn" type="submit" class="btn primary" data-i18n="createJob">Crea commessa</button>
+            <button id="commessa-cancel-edit" type="button" class="btn ghost hidden" data-i18n="cancelEdit">Annulla modifica</button>
           </div>
         </form>
 
         <div class="cloud-box">
-          <h3>Cloud Google Drive</h3>
+          <h3 data-i18n="cloudTitle">Cloud Google Drive</h3>
           <input
             id="cloud-endpoint"
             type="url"
             placeholder="URL Web App Google Apps Script"
+            data-i18n-placeholder="cloudPlaceholder"
           />
           <div class="form-actions">
-            <button id="save-cloud" type="button" class="btn ghost">Salva su Cloud</button>
-            <button id="load-cloud" type="button" class="btn ghost">Carica da Cloud</button>
+            <button id="save-cloud" type="button" class="btn ghost" data-i18n="saveCloud">Salva su Cloud</button>
+            <button id="load-cloud" type="button" class="btn ghost" data-i18n="loadCloud">Carica da Cloud</button>
           </div>
           <small id="cloud-status" class="hint">Cloud non configurato.</small>
         </div>
@@ -67,51 +75,61 @@
 
       <section class="panel content-panel">
         <div class="panel-head">
-          <h2>Scheda Commessa</h2>
+          <h2 data-i18n="jobSheetTitle">Scheda Commessa</h2>
           <span id="active-commessa-chip" class="chip muted">Nessuna commessa selezionata</span>
         </div>
 
         <form id="work-form" class="report-form">
-          <h3 class="section-title">Dati Base</h3>
+          <h3 class="section-title" data-i18n="baseDataTitle">Dati Base</h3>
           <div class="grid-2">
             <label>
-              Localita
+              <span data-i18n="locationLabel">Localita</span>
               <input id="commessa-localita" type="text" required />
             </label>
             <label>
-              Data
+              <span data-i18n="dateLabel">Data</span>
               <input id="commessa-data" type="date" required />
             </label>
             <label class="full-width">
-              Posizione geolocalizzata
-              <div class="geo-row">
-                <input id="commessa-posizione" type="text" readonly placeholder="Latitudine, Longitudine" />
-                <button id="geo-btn" type="button" class="btn ghost">Acquisisci posizione</button>
+              <span data-i18n="positionLabel">Posizione geolocalizzata</span>
+              <div class="position-panel">
+                <div class="position-mode-row">
+                  <label class="check-inline compact-check">
+                    <input id="position-mode-gps" type="radio" name="position-mode" value="gps" checked />
+                    <span data-i18n="positionModeGps">Sensore GPS</span>
+                  </label>
+                  <label class="check-inline compact-check">
+                    <input id="position-mode-manual" type="radio" name="position-mode" value="manual" />
+                    <span data-i18n="positionModeManual">Inserimento manuale</span>
+                  </label>
+                </div>
+                <div class="geo-row">
+                  <input id="commessa-posizione" type="text" readonly placeholder="Latitudine, Longitudine" data-i18n-placeholder="positionPlaceholder" />
+                  <button id="geo-btn" type="button" class="btn ghost" data-i18n="acquirePosition">Acquisisci posizione</button>
+                </div>
+                <div id="manual-geo-row" class="manual-geo-row hidden">
+                  <input id="commessa-posizione-manuale" type="text" placeholder="Incolla coordinate o link Google Maps" data-i18n-placeholder="manualPositionPlaceholder" />
+                  <button id="apply-manual-geo" type="button" class="btn ghost" data-i18n="applyManualPosition">Usa posizione</button>
+                </div>
               </div>
               <small id="geo-status" class="hint"></small>
             </label>
           </div>
 
-          <h3 class="section-title">Check Trasporto</h3>
+          <h3 class="section-title" data-i18n="transportChecksTitle">Check Trasporto</h3>
           <div id="check-hardware" class="check-grid"></div>
 
-          <h3 class="section-title">Check Montaggio</h3>
+          <h3 class="section-title" data-i18n="assemblyChecksTitle">Check Montaggio</h3>
           <div id="check-montaggio" class="check-grid"></div>
 
-          <h3 class="section-title">Giornale di Lavoro</h3>
+          <h3 class="section-title" data-i18n="workLogTitle">Giornale di Lavoro</h3>
           <div class="grid-2">
             <label>
-              Meteo
-              <select id="g-meteo">
-                <option value="">Seleziona meteo</option>
-                <option value="soleggiato">Soleggiato</option>
-                <option value="parzialmente nuvoloso">Parzialmente nuvoloso</option>
-                <option value="nuvoloso">Nuvoloso</option>
-                <option value="pioggia">Pioggia</option>
-              </select>
+              <span data-i18n="weatherLabel">Meteo</span>
+              <select id="g-meteo"></select>
             </label>
             <label>
-              Altezza nuvole
+              <span data-i18n="cloudHeightLabel">Altezza nuvole</span>
               <div class="unit-field">
                 <input id="g-altezza-nuvole" type="number" min="0" step="1" placeholder="0" />
                 <span class="unit-tag">ft</span>
@@ -119,22 +137,22 @@
             </label>
             <label class="check-inline">
               <input id="g-foschia" type="checkbox" />
-              Foschia
+              <span data-i18n="mistLabel">Foschia</span>
             </label>
           </div>
 
           <div id="giornale-sessions" class="giornale-sessions"></div>
 
           <label>
-            Note
-            <textarea id="g-note" rows="3" placeholder="Annotazioni finali"></textarea>
+            <span data-i18n="notesLabel">Note</span>
+            <textarea id="g-note" rows="3" placeholder="Annotazioni finali" data-i18n-placeholder="finalNotesPlaceholder"></textarea>
           </label>
 
-          <button type="submit" class="btn primary">Salva scheda commessa</button>
+          <button type="submit" class="btn primary" data-i18n="saveJobSheet">Salva scheda commessa</button>
 
           <div class="history-box">
-            <h3 class="section-title">Storico modifiche</h3>
-            <small class="hint">Mostra utente (login) e salvataggi della commessa selezionata.</small>
+            <h3 class="section-title" data-i18n="historyTitle">Storico modifiche</h3>
+            <small class="hint" data-i18n="historyHint">Mostra utente (login) e salvataggi della commessa selezionata.</small>
             <ul id="history-list" class="history-list"></ul>
           </div>
         </form>
@@ -143,17 +161,17 @@
 
     <div id="auth-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
       <form id="auth-form" class="auth-modal panel">
-        <h2>Accesso</h2>
-        <p class="hint">Inserisci email e password condivisa per tracciare le modifiche.</p>
+        <h2 data-i18n="loginTitle">Accesso</h2>
+        <p class="hint" data-i18n="loginHint">Inserisci email e password condivisa per tracciare le modifiche.</p>
         <label>
-          Email
-          <input id="auth-email" type="email" placeholder="nome@azienda.it" required />
+          <span data-i18n="emailLabel">Email</span>
+          <input id="auth-email" type="email" placeholder="nome@azienda.it" data-i18n-placeholder="emailPlaceholder" required />
         </label>
         <label>
-          Password
-          <input id="auth-password" type="password" placeholder="Password" required />
+          <span data-i18n="passwordLabel">Password</span>
+          <input id="auth-password" type="password" placeholder="Password" data-i18n-placeholder="passwordPlaceholder" required />
         </label>
-        <button type="submit" class="btn primary">Entra</button>
+        <button type="submit" class="btn primary" data-i18n="loginButton">Entra</button>
         <small id="auth-status" class="hint"></small>
       </form>
     </div>

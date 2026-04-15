@@ -97,6 +97,27 @@ h2 {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.language-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.language-switch span {
+  font-size: 13px;
+}
+
+.language-switch select {
+  width: auto;
+  min-width: 72px;
+  padding: 6px 8px;
 }
 
 .modal-backdrop {
@@ -332,6 +353,23 @@ textarea:focus {
   gap: 8px;
 }
 
+.position-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.position-mode-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.manual-geo-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
 .hint {
   color: var(--muted);
   font-size: 12px;
@@ -355,6 +393,17 @@ label {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
+}
+
+.check-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 10px;
+  align-items: center;
+}
+
+.check-note-input {
+  min-width: 0;
 }
 
 .check-order {
@@ -387,6 +436,10 @@ label {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-weight: 500;
+}
+
+.compact-check {
   font-weight: 500;
 }
 
@@ -561,8 +614,14 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 
-  .geo-row {
+  .geo-row,
+  .manual-geo-row,
+  .check-row {
     grid-template-columns: 1fr;
+  }
+
+  .check-row {
+    gap: 6px;
   }
 
   .panel {

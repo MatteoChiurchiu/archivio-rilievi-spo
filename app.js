@@ -1,38 +1,290 @@
 const STORAGE_KEY = "spo_commesse_archive_v2";
 const CLOUD_ENDPOINT_KEY = "spo_cloud_endpoint";
 const AUTH_SESSION_KEY = "spo_auth_session_v1";
+const LANGUAGE_KEY = "spo_language_v1";
 
 const HARDWARE_ITEMS = [
-  { key: "camere", label: "Macchine fotografiche" },
-  { key: "displayCaviGps", label: "Display cavi e antenna GPS" },
-  { key: "moduloControllo", label: "Modulo di controllo" },
-  { key: "cinghie", label: "Cinghie ancoraggio" },
-  { key: "prolunghe", label: "Prolunghe elettriche" },
-  { key: "ssdControlBox", label: "Dischi SSD control box" },
-  { key: "adattatoriSsd", label: "Adattatori SSD" },
-  { key: "dischiBackup", label: "Dischi backup e docker station" },
-  { key: "computer", label: "Computer" },
+  { key: "camere", label: { it: "Macchine fotografiche", en: "Cameras" } },
+  { key: "displayCaviGps", label: { it: "Display cavi e antenna GPS", en: "Display cables and GPS antenna" } },
+  { key: "moduloControllo", label: { it: "Modulo di controllo", en: "Control module" } },
+  { key: "cinghie", label: { it: "Cinghie ancoraggio", en: "Tie-down straps" } },
+  { key: "prolunghe", label: { it: "Prolunghe elettriche", en: "Power extension cables" } },
+  { key: "ssdControlBox", label: { it: "Dischi SSD control box", en: "Control box SSD drives" } },
+  { key: "adattatoriSsd", label: { it: "Adattatori SSD", en: "SSD adapters" } },
+  { key: "dischiBackup", label: { it: "Dischi backup e docker station", en: "Backup drives and dock station" } },
+  { key: "computer", label: { it: "Computer", en: "Computer" } },
 ];
 
 const MONTAGGIO_ITEMS = [
-  { key: "montaggioFotocamere", label: "Montaggio Fotocamere" },
-  { key: "montaggioModulo", label: "Montaggio modulo controllo" },
-  { key: "montaggioDisplay", label: "Montaggio display" },
-  { key: "montaggioAntenna", label: "Montaggio antenna GPS" },
-  { key: "montaggioBatterie", label: "Montaggio batterie" },
-  { key: "caviRiserva", label: "Cavi di riserva" },
-  { key: "topoflight", label: "Avvio topoflight e caricamento missione" },
-  { key: "ixCapture", label: "Avvio IX capture" },
-  { key: "cartelleLavoro", label: "Creazione cartelle di lavoro" },
-  { key: "scattiProva", label: "Scatti di prova" },
-  { key: "verificaGpsExif", label: "Verifica dati GPS/EXIF" },
+  { key: "montaggioFotocamere", label: { it: "Montaggio fotocamere", en: "Camera assembly" } },
+  { key: "montaggioModulo", label: { it: "Montaggio modulo controllo", en: "Control module assembly" } },
+  { key: "montaggioDisplay", label: { it: "Montaggio display", en: "Display assembly" } },
+  { key: "montaggioAntenna", label: { it: "Montaggio antenna GPS", en: "GPS antenna assembly" } },
+  { key: "montaggioBatterie", label: { it: "Montaggio batterie", en: "Battery assembly" } },
+  { key: "caviRiserva", label: { it: "Cavi di riserva", en: "Spare cables" } },
+  { key: "topoflight", label: { it: "Avvio topoflight e caricamento missione", en: "Start Topoflight and load mission" } },
+  { key: "ixCapture", label: { it: "Avvio IX capture", en: "Start IX Capture" } },
+  { key: "cartelleLavoro", label: { it: "Creazione cartelle di lavoro", en: "Create working folders" } },
+  { key: "scattiProva", label: { it: "Scatti di prova", en: "Test shots" } },
+  { key: "verificaGpsExif", label: { it: "Verifica dati GPS/EXIF", en: "Check GPS/EXIF data" } },
 ];
+
+const METEO_OPTIONS = [
+  { value: "soleggiato", label: { it: "Soleggiato", en: "Sunny" } },
+  { value: "parzialmente nuvoloso", label: { it: "Parzialmente nuvoloso", en: "Partly cloudy" } },
+  { value: "nuvoloso", label: { it: "Nuvoloso", en: "Cloudy" } },
+  { value: "pioggia", label: { it: "Pioggia", en: "Rain" } },
+];
+
+const TRANSLATIONS = {
+  it: {
+    eyebrow: "Gestione Operativa",
+    appTitle: "Archivio Rilievi SPO",
+    languageLabel: "Lingua",
+    changeUser: "Cambia utente",
+    printPdf: "Stampa PDF",
+    exportJson: "Esporta JSON",
+    importJson: "Importa JSON",
+    jobsTitle: "Commesse",
+    jobCodePlaceholder: "Codice commessa",
+    jobNamePlaceholder: "Nome commessa",
+    clientPlaceholder: "Cliente",
+    createJob: "Crea commessa",
+    saveEdit: "Salva modifica",
+    cancelEdit: "Annulla modifica",
+    cloudTitle: "Cloud Google Drive",
+    cloudPlaceholder: "URL Web App Google Apps Script",
+    saveCloud: "Salva su Cloud",
+    loadCloud: "Carica da Cloud",
+    cloudNotConfigured: "Cloud non configurato.",
+    jobSheetTitle: "Scheda Commessa",
+    noJobSelected: "Nessuna commessa selezionata",
+    baseDataTitle: "Dati Base",
+    locationLabel: "Localita",
+    dateLabel: "Data",
+    positionLabel: "Posizione geolocalizzata",
+    positionModeGps: "Sensore GPS",
+    positionModeManual: "Inserimento manuale",
+    positionPlaceholder: "Latitudine, Longitudine",
+    manualPositionPlaceholder: "Incolla coordinate o link Google Maps",
+    acquirePosition: "Acquisisci posizione",
+    applyManualPosition: "Usa posizione",
+    transportChecksTitle: "Check Trasporto",
+    assemblyChecksTitle: "Check Montaggio",
+    workLogTitle: "Giornale di Lavoro",
+    weatherLabel: "Meteo",
+    weatherPlaceholder: "Seleziona meteo",
+    cloudHeightLabel: "Altezza nuvole",
+    mistLabel: "Foschia",
+    notesLabel: "Note",
+    finalNotesPlaceholder: "Annotazioni finali",
+    saveJobSheet: "Salva scheda commessa",
+    historyTitle: "Storico modifiche",
+    historyHint: "Mostra utente (login) e salvataggi della commessa selezionata.",
+    loginTitle: "Accesso",
+    loginHint: "Inserisci email e password condivisa per tracciare le modifiche.",
+    emailLabel: "Email",
+    emailPlaceholder: "nome@azienda.it",
+    passwordLabel: "Password",
+    passwordPlaceholder: "Password",
+    loginButton: "Entra",
+    unauthenticatedUser: "Utente non autenticato",
+    userBadge: "Utente: {email}",
+    noJobsCreated: "Nessuna commessa creata.",
+    selectOrCreateJob: "Seleziona o crea una commessa per compilare la scheda.",
+    positionNotAcquired: "Posizione non ancora acquisita.",
+    gpsAccuracy: "Precisione {accuracy}m",
+    positionFromGps: "Posizione acquisita da GPS. Precisione {accuracy}m",
+    positionFromManual: "Posizione inserita manualmente da Google Maps.",
+    checkNotePlaceholder: "Note",
+    workButton: "Lavora",
+    editButton: "Modifica",
+    deleteButton: "Cancella",
+    lastUpdate: "Ultima modifica: {user} ({date})",
+    notAvailable: "n.d.",
+    noHistoryForSelection: "Nessuna commessa selezionata.",
+    noHistoryChanges: "Nessuna modifica registrata.",
+    noFlightLines: "Nessuna strisciata. Inserisci il numero sopra.",
+    sessionTitle: "Sessione lavoro {index}",
+    ignitionLabel: "Accensione motore",
+    takeoffLabel: "Decollo",
+    acquisitionStartLabel: "Inizio acquisizione foto",
+    flightLinesCountLabel: "Numero strisciate",
+    idLabel: "ID",
+    directionLabel: "Direzione (deg)",
+    partialLabel: "Parziale",
+    completeLabel: "Completa",
+    finishLabel: "Fine lavori",
+    globalMapperLabel: "Check GLOBAL MAPPER",
+    landingLabel: "Atterraggio",
+    engineOffLabel: "Spegnimento motori",
+    interruptionResume: "Interruzione/Ripresa lavoro",
+    duplicateJobCode: "Esiste gia una commessa con questo codice.",
+    deleteJobConfirm: "Vuoi cancellare definitivamente questa commessa?",
+    syncDeleteConfirm: "Commessa eliminata in locale. Vuoi aggiornare subito anche il cloud?",
+    deletedLocalOnly: "Commessa eliminata in locale. Premi 'Salva su Cloud' per aggiornare il cloud.",
+    cloudDeleteSyncing: "Aggiornamento cloud in corso dopo cancellazione...",
+    cloudDeleteSynced: "Cancellazione sincronizzata anche sul cloud.",
+    cloudDeleteError: "Errore aggiornamento cloud: la commessa e stata eliminata solo in locale.",
+    selectJobFirst: "Seleziona prima una commessa.",
+    geolocationUnsupported: "Geolocalizzazione non supportata dal browser.",
+    geolocationPending: "Acquisizione posizione in corso...",
+    geolocationError: "Errore geolocalizzazione: {reason}",
+    geolocationDenied: "Permesso negato",
+    geolocationUnavailable: "Posizione non disponibile",
+    geolocationTimeout: "Timeout acquisizione",
+    manualPositionInvalid: "Incolla coordinate valide o un link Google Maps con latitudine e longitudine.",
+    jobSheetSaved: "Scheda commessa salvata.",
+    invalidEmail: "Inserisci un'email valida.",
+    missingPassword: "Inserisci la password.",
+    checkingCredentials: "Verifica credenziali...",
+    invalidCredentials: "Credenziali non valide.",
+    importError: "Impossibile importare il file JSON.",
+    saveCloudPending: "Invio dati al cloud in corso...",
+    saveCloudDoneServer: "Salvataggio cloud completato (via server).",
+    saveCloudDoneClient: "Salvataggio cloud completato.",
+    loadCloudPending: "Caricamento dati dal cloud in corso...",
+    loadCloudDoneServer: "Caricamento cloud completato (via server).",
+    loadCloudDoneClient: "Caricamento cloud completato.",
+    cloudUrlRequired: "Inserisci prima l'URL Web App di Google Apps Script.",
+    cloudProxyError: "Cloud non raggiungibile: verifica URL Web App o permessi deploy.",
+    cloudCorsError: "Cloud non raggiungibile (probabile blocco CORS): avvia il server locale con npm start.",
+    cloudInvalidResponse: "Formato risposta cloud non valido o non compatibile.",
+    endpointConfigured: "Endpoint cloud configurato.",
+    backendLocalActive: "Database locale server attivo.",
+    backendConfigUnavailable: "Config server non disponibile",
+    backendReadFailed: "Lettura backend non riuscita",
+    backendSaveFailed: "Salvataggio backend non riuscito",
+    localArchiveInvalid: "Archivio locale non valido",
+  },
+  en: {
+    eyebrow: "Operations Management",
+    appTitle: "SPO Survey Archive",
+    languageLabel: "Language",
+    changeUser: "Change user",
+    printPdf: "Print PDF",
+    exportJson: "Export JSON",
+    importJson: "Import JSON",
+    jobsTitle: "Jobs",
+    jobCodePlaceholder: "Job code",
+    jobNamePlaceholder: "Job name",
+    clientPlaceholder: "Client",
+    createJob: "Create job",
+    saveEdit: "Save changes",
+    cancelEdit: "Cancel edit",
+    cloudTitle: "Google Drive Cloud",
+    cloudPlaceholder: "Google Apps Script Web App URL",
+    saveCloud: "Save to cloud",
+    loadCloud: "Load from cloud",
+    cloudNotConfigured: "Cloud not configured.",
+    jobSheetTitle: "Job Sheet",
+    noJobSelected: "No job selected",
+    baseDataTitle: "Basic Data",
+    locationLabel: "Location",
+    dateLabel: "Date",
+    positionLabel: "Geolocated position",
+    positionModeGps: "GPS sensor",
+    positionModeManual: "Manual entry",
+    positionPlaceholder: "Latitude, Longitude",
+    manualPositionPlaceholder: "Paste coordinates or a Google Maps link",
+    acquirePosition: "Capture position",
+    applyManualPosition: "Use position",
+    transportChecksTitle: "Transport Checks",
+    assemblyChecksTitle: "Assembly Checks",
+    workLogTitle: "Work Log",
+    weatherLabel: "Weather",
+    weatherPlaceholder: "Select weather",
+    cloudHeightLabel: "Cloud height",
+    mistLabel: "Mist",
+    notesLabel: "Notes",
+    finalNotesPlaceholder: "Final notes",
+    saveJobSheet: "Save job sheet",
+    historyTitle: "Change history",
+    historyHint: "Shows user login and saves for the selected job.",
+    loginTitle: "Login",
+    loginHint: "Enter email and the shared password to track changes.",
+    emailLabel: "Email",
+    emailPlaceholder: "name@company.com",
+    passwordLabel: "Password",
+    passwordPlaceholder: "Password",
+    loginButton: "Sign in",
+    unauthenticatedUser: "User not authenticated",
+    userBadge: "User: {email}",
+    noJobsCreated: "No jobs created.",
+    selectOrCreateJob: "Select or create a job to fill in the sheet.",
+    positionNotAcquired: "Position not acquired yet.",
+    gpsAccuracy: "Accuracy {accuracy}m",
+    positionFromGps: "Position captured from GPS. Accuracy {accuracy}m",
+    positionFromManual: "Position entered manually from Google Maps.",
+    checkNotePlaceholder: "Notes",
+    workButton: "Open",
+    editButton: "Edit",
+    deleteButton: "Delete",
+    lastUpdate: "Last update: {user} ({date})",
+    notAvailable: "n/a",
+    noHistoryForSelection: "No job selected.",
+    noHistoryChanges: "No changes recorded.",
+    noFlightLines: "No flight lines. Enter the number above.",
+    sessionTitle: "Work session {index}",
+    ignitionLabel: "Engine start",
+    takeoffLabel: "Takeoff",
+    acquisitionStartLabel: "Photo acquisition start",
+    flightLinesCountLabel: "Flight lines count",
+    idLabel: "ID",
+    directionLabel: "Direction (deg)",
+    partialLabel: "Partial",
+    completeLabel: "Complete",
+    finishLabel: "Work end",
+    globalMapperLabel: "GLOBAL MAPPER check",
+    landingLabel: "Landing",
+    engineOffLabel: "Engine shutdown",
+    interruptionResume: "Work interruption/resume",
+    duplicateJobCode: "A job with this code already exists.",
+    deleteJobConfirm: "Do you want to permanently delete this job?",
+    syncDeleteConfirm: "Job deleted locally. Do you want to update the cloud now too?",
+    deletedLocalOnly: "Job deleted locally. Press 'Save to cloud' to update the cloud.",
+    cloudDeleteSyncing: "Updating cloud after deletion...",
+    cloudDeleteSynced: "Deletion synced to the cloud too.",
+    cloudDeleteError: "Cloud update error: the job was deleted only locally.",
+    selectJobFirst: "Select a job first.",
+    geolocationUnsupported: "Geolocation is not supported by this browser.",
+    geolocationPending: "Capturing position...",
+    geolocationError: "Geolocation error: {reason}",
+    geolocationDenied: "Permission denied",
+    geolocationUnavailable: "Position unavailable",
+    geolocationTimeout: "Acquisition timeout",
+    manualPositionInvalid: "Paste valid coordinates or a Google Maps link with latitude and longitude.",
+    jobSheetSaved: "Job sheet saved.",
+    invalidEmail: "Enter a valid email address.",
+    missingPassword: "Enter the password.",
+    checkingCredentials: "Checking credentials...",
+    invalidCredentials: "Invalid credentials.",
+    importError: "Unable to import the JSON file.",
+    saveCloudPending: "Sending data to the cloud...",
+    saveCloudDoneServer: "Cloud save completed (via server).",
+    saveCloudDoneClient: "Cloud save completed.",
+    loadCloudPending: "Loading data from the cloud...",
+    loadCloudDoneServer: "Cloud load completed (via server).",
+    loadCloudDoneClient: "Cloud load completed.",
+    cloudUrlRequired: "Enter the Google Apps Script Web App URL first.",
+    cloudProxyError: "Cloud unreachable: check Web App URL or deploy permissions.",
+    cloudCorsError: "Cloud unreachable (likely CORS block): start the local server with npm start.",
+    cloudInvalidResponse: "Invalid or unsupported cloud response format.",
+    endpointConfigured: "Cloud endpoint configured.",
+    backendLocalActive: "Local server database active.",
+    backendConfigUnavailable: "Server config unavailable",
+    backendReadFailed: "Backend read failed",
+    backendSaveFailed: "Backend save failed",
+    localArchiveInvalid: "Invalid local archive",
+  },
+};
 
 const state = {
   commesse: [],
   activeCommessaId: null,
   editCommessaId: null,
   cloudEndpoint: "",
+  language: "it",
   backendAvailable: false,
   authRequired: false,
   currentUser: {
@@ -56,6 +308,11 @@ const dom = {
   localita: document.getElementById("commessa-localita"),
   data: document.getElementById("commessa-data"),
   posizione: document.getElementById("commessa-posizione"),
+  posizioneManuale: document.getElementById("commessa-posizione-manuale"),
+  manualGeoRow: document.getElementById("manual-geo-row"),
+  applyManualGeoBtn: document.getElementById("apply-manual-geo"),
+  positionModeGps: document.getElementById("position-mode-gps"),
+  positionModeManual: document.getElementById("position-mode-manual"),
   geoBtn: document.getElementById("geo-btn"),
   geoStatus: document.getElementById("geo-status"),
 
@@ -77,6 +334,7 @@ const dom = {
   loadCloudBtn: document.getElementById("load-cloud"),
   cloudStatus: document.getElementById("cloud-status"),
   userBadge: document.getElementById("user-badge"),
+  languageSelect: document.getElementById("language-select"),
   changeUserBtn: document.getElementById("change-user"),
   authModal: document.getElementById("auth-modal"),
   authForm: document.getElementById("auth-form"),
@@ -84,6 +342,70 @@ const dom = {
   authPassword: document.getElementById("auth-password"),
   authStatus: document.getElementById("auth-status"),
 };
+
+function t(key, params = {}) {
+  const dictionary = TRANSLATIONS[state.language] || TRANSLATIONS.it;
+  let template = dictionary[key] || TRANSLATIONS.it[key] || key;
+
+  for (const [paramKey, value] of Object.entries(params)) {
+    template = template.replace(`{${paramKey}}`, String(value));
+  }
+
+  return template;
+}
+
+function getItemLabel(item) {
+  return item.label?.[state.language] || item.label?.it || "";
+}
+
+function applyTranslations() {
+  document.documentElement.lang = state.language;
+  document.title = t("appTitle");
+
+  for (const element of document.querySelectorAll("[data-i18n]")) {
+    element.textContent = t(element.dataset.i18n);
+  }
+
+  for (const element of document.querySelectorAll("[data-i18n-placeholder]")) {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  }
+
+  renderMeteoOptions();
+}
+
+function setLanguage(language) {
+  state.language = TRANSLATIONS[language] ? language : "it";
+  localStorage.setItem(LANGUAGE_KEY, state.language);
+  if (dom.languageSelect) {
+    dom.languageSelect.value = state.language;
+  }
+  applyTranslations();
+  renderUserBadge();
+  render();
+}
+
+function renderMeteoOptions() {
+  if (!dom.gMeteo) {
+    return;
+  }
+
+  const selectedValue = dom.gMeteo.value;
+  dom.gMeteo.innerHTML = "";
+
+  const emptyOption = document.createElement("option");
+  emptyOption.value = "";
+  emptyOption.textContent = t("weatherPlaceholder");
+  dom.gMeteo.appendChild(emptyOption);
+
+  for (const option of METEO_OPTIONS) {
+    const element = document.createElement("option");
+    element.value = option.value;
+    element.textContent = option.label[state.language] || option.label.it;
+    dom.gMeteo.appendChild(element);
+  }
+
+  dom.gMeteo.value = selectedValue;
+}
 
 function apiUrl(path) {
   return `${window.location.origin}${path}`;
@@ -102,12 +424,12 @@ function authHeaders() {
 
 function renderUserBadge() {
   if (!state.currentUser.email) {
-    dom.userBadge.textContent = "Utente non autenticato";
+    dom.userBadge.textContent = t("unauthenticatedUser");
     dom.userBadge.classList.add("muted");
     return;
   }
 
-  dom.userBadge.textContent = `Utente: ${state.currentUser.email}`;
+  dom.userBadge.textContent = t("userBadge", { email: state.currentUser.email });
   dom.userBadge.classList.remove("muted");
 }
 
@@ -140,8 +462,35 @@ function uid(prefix) {
 function emptyChecks(items) {
   const out = {};
   for (const item of items) {
-    out[item.key] = false;
+    out[item.key] = {
+      checked: false,
+      note: "",
+    };
   }
+  return out;
+}
+
+function normalizeCheckEntry(entry) {
+  if (typeof entry === "boolean") {
+    return {
+      checked: entry,
+      note: "",
+    };
+  }
+
+  return {
+    checked: Boolean(entry?.checked),
+    note: String(entry?.note ?? ""),
+  };
+}
+
+function normalizeCheckState(items, source) {
+  const out = {};
+
+  for (const item of items) {
+    out[item.key] = normalizeCheckEntry(source?.[item.key]);
+  }
+
   return out;
 }
 
@@ -242,6 +591,7 @@ function createCommessa(payload) {
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshotState()));
   localStorage.setItem(CLOUD_ENDPOINT_KEY, state.cloudEndpoint || "");
+  localStorage.setItem(LANGUAGE_KEY, state.language || "it");
   sessionStorage.setItem(
     AUTH_SESSION_KEY,
     JSON.stringify({
@@ -265,14 +615,8 @@ function normalizeLoadedData(raw) {
     data: c.data || new Date().toISOString().slice(0, 10),
     posizione: c.posizione || null,
     checks: {
-      hardware: {
-        ...emptyChecks(HARDWARE_ITEMS),
-        ...(c.checks?.hardware || {}),
-      },
-      montaggio: {
-        ...emptyChecks(MONTAGGIO_ITEMS),
-        ...(c.checks?.montaggio || {}),
-      },
+      hardware: normalizeCheckState(HARDWARE_ITEMS, c.checks?.hardware || {}),
+      montaggio: normalizeCheckState(MONTAGGIO_ITEMS, c.checks?.montaggio || {}),
     },
     giornale: normalizeGiornaleData(c.giornale ?? c.giornaleDiLavoro ?? c.workLog ?? c),
     createdAt: c.createdAt || new Date().toISOString(),
@@ -382,6 +726,7 @@ function normalizeGiornaleData(giornale) {
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
   state.cloudEndpoint = localStorage.getItem(CLOUD_ENDPOINT_KEY) || "";
+  state.language = localStorage.getItem(LANGUAGE_KEY) || "it";
   try {
     const savedSession = JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY) || "{}");
     state.currentUser.email = String(savedSession.email || "").trim();
@@ -403,7 +748,7 @@ function loadState() {
         ? envelope.activeCommessaId
         : state.commesse[0]?.id || null;
   } catch {
-    console.warn("Archivio locale non valido");
+    console.warn(t("localArchiveInvalid"));
   }
 }
 
@@ -435,7 +780,7 @@ async function loadServerConfig() {
       localStorage.setItem(CLOUD_ENDPOINT_KEY, serverEndpoint);
     }
   } catch {
-    console.warn("Config server non disponibile");
+    console.warn(t("backendConfigUnavailable"));
   }
 }
 
@@ -458,7 +803,7 @@ async function loadStateFromBackend() {
         ? envelope.activeCommessaId
         : state.commesse[0]?.id || null;
   } catch {
-    console.warn("Lettura backend non riuscita");
+    console.warn(t("backendReadFailed"));
   }
 }
 
@@ -481,7 +826,7 @@ async function saveStateToBackend() {
       body: JSON.stringify(snapshotState()),
     });
   } catch {
-    console.warn("Salvataggio backend non riuscito");
+    console.warn(t("backendSaveFailed"));
   }
 }
 
@@ -491,15 +836,15 @@ function setCloudStatus(message) {
 
 function formatDateTime(iso) {
   if (!iso) {
-    return "n.d.";
+    return t("notAvailable");
   }
 
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
-    return "n.d.";
+    return t("notAvailable");
   }
 
-  return date.toLocaleString("it-IT", {
+  return date.toLocaleString(state.language === "en" ? "en-GB" : "it-IT", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -624,33 +969,29 @@ async function callCloud(action) {
 async function pushToCloud() {
   const endpoint = getCloudEndpoint();
   if (!endpoint) {
-    setCloudStatus("Inserisci prima l'URL Web App di Google Apps Script.");
+    setCloudStatus(t("cloudUrlRequired"));
     return;
   }
 
-  setCloudStatus("Invio dati al cloud in corso...");
+  setCloudStatus(t("saveCloudPending"));
 
   try {
     await callCloud("save");
 
-    setCloudStatus(state.backendAvailable ? "Salvataggio cloud completato (via server)." : "Salvataggio cloud completato.");
+    setCloudStatus(state.backendAvailable ? t("saveCloudDoneServer") : t("saveCloudDoneClient"));
   } catch {
-    setCloudStatus(
-      state.backendAvailable
-        ? "Cloud non raggiungibile: verifica URL Web App o permessi deploy."
-        : "Cloud non raggiungibile (probabile blocco CORS): avvia il server locale con npm start."
-    );
+    setCloudStatus(state.backendAvailable ? t("cloudProxyError") : t("cloudCorsError"));
   }
 }
 
 async function pullFromCloud() {
   const endpoint = getCloudEndpoint();
   if (!endpoint) {
-    setCloudStatus("Inserisci prima l'URL Web App di Google Apps Script.");
+    setCloudStatus(t("cloudUrlRequired"));
     return;
   }
 
-  setCloudStatus("Caricamento dati dal cloud in corso...");
+  setCloudStatus(t("loadCloudPending"));
 
   try {
     const data = await callCloud("load");
@@ -661,7 +1002,7 @@ async function pullFromCloud() {
 
     const envelope = normalizeStateEnvelope(data);
     if (!envelope.recognized) {
-      setCloudStatus("Formato risposta cloud non valido o non compatibile.");
+      setCloudStatus(t("cloudInvalidResponse"));
       return;
     }
 
@@ -673,13 +1014,9 @@ async function pullFromCloud() {
     state.editCommessaId = null;
     saveState();
     render();
-    setCloudStatus(state.backendAvailable ? "Caricamento cloud completato (via server)." : "Caricamento cloud completato.");
+    setCloudStatus(state.backendAvailable ? t("loadCloudDoneServer") : t("loadCloudDoneClient"));
   } catch {
-    setCloudStatus(
-      state.backendAvailable
-        ? "Cloud non raggiungibile: verifica URL Web App o permessi deploy."
-        : "Cloud non raggiungibile (probabile blocco CORS): avvia il server locale con npm start."
-    );
+    setCloudStatus(state.backendAvailable ? t("cloudProxyError") : t("cloudCorsError"));
   }
 }
 
@@ -695,20 +1032,20 @@ function renderCommessaHistory(commessa) {
   dom.historyList.innerHTML = "";
 
   if (!commessa) {
-    dom.historyList.innerHTML = "<li>Nessuna commessa selezionata.</li>";
+    dom.historyList.innerHTML = `<li>${t("noHistoryForSelection")}</li>`;
     return;
   }
 
   const history = Array.isArray(commessa.history) ? [...commessa.history].reverse() : [];
   if (history.length === 0) {
-    dom.historyList.innerHTML = "<li>Nessuna modifica registrata.</li>";
+    dom.historyList.innerHTML = `<li>${t("noHistoryChanges")}</li>`;
     return;
   }
 
   const visible = history.slice(0, 12);
   for (const item of visible) {
     const li = document.createElement("li");
-    li.textContent = `${formatDateTime(item.at)} - ${item.by || "sconosciuto"}: ${item.action || "Modifica"}`;
+    li.textContent = `${formatDateTime(item.at)} - ${item.by || t("notAvailable")}: ${item.action || t("editButton")}`;
     dom.historyList.appendChild(li);
   }
 }
@@ -724,7 +1061,7 @@ function setEditMode(commessa) {
 
   if (!commessa) {
     dom.commessaForm.reset();
-    dom.commessaSaveBtn.textContent = "Crea commessa";
+    dom.commessaSaveBtn.textContent = t("createJob");
     dom.commessaCancelEdit.classList.add("hidden");
     return;
   }
@@ -732,7 +1069,7 @@ function setEditMode(commessa) {
   dom.commessaCodice.value = commessa.codice;
   dom.commessaNome.value = commessa.nome;
   dom.commessaCliente.value = commessa.cliente;
-  dom.commessaSaveBtn.textContent = "Salva modifica";
+  dom.commessaSaveBtn.textContent = t("saveEdit");
   dom.commessaCancelEdit.classList.remove("hidden");
 }
 
@@ -741,8 +1078,8 @@ function renderCommesse() {
   dom.commesseCount.textContent = String(state.commesse.length);
 
   if (state.commesse.length === 0) {
-    dom.commesseList.innerHTML = "<p>Nessuna commessa creata.</p>";
-    dom.activeCommessaChip.textContent = "Nessuna commessa selezionata";
+    dom.commesseList.innerHTML = `<p>${t("noJobsCreated")}</p>`;
+    dom.activeCommessaChip.textContent = t("noJobSelected");
     dom.activeCommessaChip.classList.add("muted");
     return;
   }
@@ -750,7 +1087,7 @@ function renderCommesse() {
   const active = getActiveCommessa();
   dom.activeCommessaChip.textContent = active
     ? `${active.codice} - ${active.nome}`
-    : "Nessuna commessa selezionata";
+    : t("noJobSelected");
   dom.activeCommessaChip.classList.toggle("muted", !active);
 
   for (const commessa of state.commesse) {
@@ -760,11 +1097,14 @@ function renderCommesse() {
     card.innerHTML = `
       <h3>${commessa.codice} - ${commessa.nome}</h3>
       <p>${commessa.cliente}</p>
-      <p>Ultima modifica: ${commessa.updatedBy || "n.d."} (${formatDateTime(commessa.updatedAt)})</p>
+      <p>${t("lastUpdate", {
+        user: commessa.updatedBy || t("notAvailable"),
+        date: formatDateTime(commessa.updatedAt),
+      })}</p>
       <div class="commessa-card-footer">
-        <button class="btn tiny ghost" data-work="${commessa.id}">Lavora</button>
-        <button class="btn tiny ghost" data-edit="${commessa.id}">Modifica</button>
-        <button class="btn tiny danger" data-delete="${commessa.id}">Cancella</button>
+        <button class="btn tiny ghost" data-work="${commessa.id}">${t("workButton")}</button>
+        <button class="btn tiny ghost" data-edit="${commessa.id}">${t("editButton")}</button>
+        <button class="btn tiny danger" data-delete="${commessa.id}">${t("deleteButton")}</button>
       </div>
     `;
 
@@ -792,16 +1132,24 @@ function renderChecklist(container, items, group, data) {
   container.innerHTML = "";
 
   items.forEach((item, index) => {
-    const label = document.createElement("label");
-    label.className = "check-inline";
-    label.innerHTML = `
-      <span class="check-order">${index + 1}.</span>
-      <input type="checkbox" data-check-group="${group}" data-check-key="${item.key}" ${
-      data[item.key] ? "checked" : ""
-    } />
-      ${item.label}
+    const row = document.createElement("div");
+    const entry = normalizeCheckEntry(data[item.key]);
+    row.className = "check-row";
+    row.innerHTML = `
+      <label class="check-inline">
+        <span class="check-order">${index + 1}.</span>
+        <input type="checkbox" data-check-group="${group}" data-check-key="${item.key}" ${entry.checked ? "checked" : ""} />
+        <span>${getItemLabel(item)}</span>
+      </label>
+      <input
+        type="text"
+        class="check-note-input"
+        data-check-note-group="${group}"
+        data-check-note-key="${item.key}"
+        value="${entry.note.replace(/"/g, "&quot;")}"
+        placeholder="${t("checkNotePlaceholder")}" />
     `;
-    container.appendChild(label);
+    container.appendChild(row);
   });
 }
 
@@ -809,7 +1157,7 @@ function buildStrisciateRows(tbody, strisciate, sessionIndex) {
   tbody.innerHTML = "";
 
   if (strisciate.length === 0) {
-    tbody.innerHTML = "<tr><td colspan=\"5\">Nessuna strisciata. Inserisci il numero sopra.</td></tr>";
+    tbody.innerHTML = `<tr><td colspan="5">${t("noFlightLines")}</td></tr>`;
     syncStrisciateColumnWidths(tbody.closest("table"));
     return;
   }
@@ -825,7 +1173,7 @@ function buildStrisciateRows(tbody, strisciate, sessionIndex) {
       <td><input type="checkbox" class="str-completa" data-session-index="${sessionIndex}" data-index="${i}" ${
       strisciate[i].completa ? "checked" : ""
     } /></td>
-      <td><input type="text" class="str-note" data-session-index="${sessionIndex}" data-index="${i}" value="${strisciate[i].note ?? ""}" placeholder="Note" /></td>
+      <td><input type="text" class="str-note" data-session-index="${sessionIndex}" data-index="${i}" value="${strisciate[i].note ?? ""}" placeholder="${t("checkNotePlaceholder")}" /></td>
     `;
     tbody.appendChild(row);
   }
@@ -870,22 +1218,22 @@ function renderGiornaleSessioni(sessioni) {
     section.dataset.sessionIndex = String(index);
 
     section.innerHTML = `
-      <h4 class="session-title">Sessione lavoro ${index + 1}</h4>
+      <h4 class="session-title">${t("sessionTitle", { index: index + 1 })}</h4>
       <div class="grid-2">
         <label>
-          Accensione motore
+          ${t("ignitionLabel")}
           <input type="time" class="g-accensione" data-session-index="${index}" value="${sessione.accensioneMotore || ""}" />
         </label>
         <label>
-          Decollo
+          ${t("takeoffLabel")}
           <input type="time" class="g-decollo" data-session-index="${index}" value="${sessione.decollo || ""}" />
         </label>
         <label>
-          Inizio acquisizione foto
+          ${t("acquisitionStartLabel")}
           <input type="time" class="g-inizio-acq" data-session-index="${index}" value="${sessione.inizioAcquisizioneFoto || ""}" />
         </label>
         <label>
-          Numero strisciate
+          ${t("flightLinesCountLabel")}
           <input type="number" min="0" step="1" class="g-num-strisciate" data-session-index="${index}" value="${sessione.numeroStrisciate || 0}" />
         </label>
       </div>
@@ -894,11 +1242,11 @@ function renderGiornaleSessioni(sessioni) {
         <table>
           <thead>
             <tr>
-              <th class="col-id">ID</th>
-              <th class="col-dir">Direzione (deg)</th>
-              <th>Parziale</th>
-              <th>Completa</th>
-              <th>Note</th>
+              <th class="col-id">${t("idLabel")}</th>
+              <th class="col-dir">${t("directionLabel")}</th>
+              <th>${t("partialLabel")}</th>
+              <th>${t("completeLabel")}</th>
+              <th>${t("notesLabel")}</th>
             </tr>
           </thead>
           <tbody class="strisciate-body"></tbody>
@@ -907,26 +1255,26 @@ function renderGiornaleSessioni(sessioni) {
 
       <div class="grid-2">
         <label>
-          Fine lavori
+          ${t("finishLabel")}
           <input type="time" class="g-fine-lavori" data-session-index="${index}" value="${sessione.fineLavori || ""}" />
         </label>
         <label class="check-inline">
           <input type="checkbox" class="g-global-mapper" data-session-index="${index}" ${
             sessione.globalMapper ? "checked" : ""
           } />
-          Check GLOBAL MAPPER
+          ${t("globalMapperLabel")}
         </label>
         <label>
-          Atterraggio
+          ${t("landingLabel")}
           <input type="time" class="g-atterraggio" data-session-index="${index}" value="${sessione.atterraggio || ""}" />
         </label>
         <label>
-          Spegnimento motori
+          ${t("engineOffLabel")}
           <input type="time" class="g-spegnimento" data-session-index="${index}" value="${sessione.spegnimentoMotori || ""}" />
         </label>
       </div>
 
-      <button type="button" class="btn ghost add-session-btn" data-session-index="${index}">Interruzione/Ripresa lavoro</button>
+      <button type="button" class="btn ghost add-session-btn" data-session-index="${index}">${t("interruptionResume")}</button>
     `;
 
     dom.giornaleSessions.appendChild(section);
@@ -942,13 +1290,25 @@ function ensureGiornaleSessione(active) {
   }
 }
 
+function setPositionMode(mode) {
+  const isManual = mode === "manual";
+  dom.positionModeGps.checked = !isManual;
+  dom.positionModeManual.checked = isManual;
+  dom.manualGeoRow.classList.toggle("hidden", !isManual);
+  dom.geoBtn.classList.toggle("hidden", isManual);
+}
+
+function formatPosition(position) {
+  if (!position) {
+    return "";
+  }
+
+  return `${Number(position.lat).toFixed(6)}, ${Number(position.lon).toFixed(6)}`;
+}
+
 function setWorkFormEnabled(enabled) {
   const controls = dom.workForm.querySelectorAll("input, textarea, button");
   for (const control of controls) {
-    if (control.id === "geo-btn") {
-      control.disabled = !enabled;
-      continue;
-    }
     control.disabled = !enabled;
   }
 }
@@ -958,8 +1318,10 @@ function renderWorkSheet() {
 
   if (!active) {
     dom.workForm.reset();
-    dom.geoStatus.textContent = "Seleziona o crea una commessa per compilare la scheda.";
+    dom.geoStatus.textContent = t("selectOrCreateJob");
     dom.posizione.value = "";
+    dom.posizioneManuale.value = "";
+    setPositionMode("gps");
     renderChecklist(dom.checkHardware, HARDWARE_ITEMS, "hardware", emptyChecks(HARDWARE_ITEMS));
     renderChecklist(dom.checkMontaggio, MONTAGGIO_ITEMS, "montaggio", emptyChecks(MONTAGGIO_ITEMS));
     dom.giornaleSessions.innerHTML = "";
@@ -974,11 +1336,23 @@ function renderWorkSheet() {
   dom.data.value = active.data || "";
 
   if (active.posizione) {
-    dom.posizione.value = `${active.posizione.lat.toFixed(6)}, ${active.posizione.lon.toFixed(6)}`;
-    dom.geoStatus.textContent = `Precisione ${Math.round(active.posizione.accuracy)}m`;
+    dom.posizione.value = formatPosition(active.posizione);
+    if (active.posizione.source === "manual") {
+      dom.posizioneManuale.value = active.posizione.rawInput || formatPosition(active.posizione);
+      dom.geoStatus.textContent = t("positionFromManual");
+      setPositionMode("manual");
+    } else {
+      dom.posizioneManuale.value = "";
+      dom.geoStatus.textContent = t("positionFromGps", {
+        accuracy: Math.round(Number(active.posizione.accuracy) || 0),
+      });
+      setPositionMode("gps");
+    }
   } else {
     dom.posizione.value = "";
-    dom.geoStatus.textContent = "Posizione non ancora acquisita.";
+    dom.posizioneManuale.value = "";
+    dom.geoStatus.textContent = t("positionNotAcquired");
+    setPositionMode(dom.positionModeManual.checked ? "manual" : "gps");
   }
 
   renderChecklist(dom.checkHardware, HARDWARE_ITEMS, "hardware", active.checks.hardware);
@@ -1005,7 +1379,7 @@ function addOrUpdateCommessa(payload) {
   );
 
   if (codiceDuplicate) {
-    alert("Esiste gia una commessa con questo codice.");
+    alert(t("duplicateJobCode"));
     return;
   }
 
@@ -1035,7 +1409,7 @@ function addOrUpdateCommessa(payload) {
 }
 
 async function deleteCommessa(commessaId) {
-  const ok = confirm("Vuoi cancellare definitivamente questa commessa?");
+  const ok = confirm(t("deleteJobConfirm"));
   if (!ok) {
     return;
   }
@@ -1058,22 +1432,20 @@ async function deleteCommessa(commessaId) {
     return;
   }
 
-  const syncCloudNow = confirm(
-    "Commessa eliminata in locale. Vuoi aggiornare subito anche il cloud?"
-  );
+  const syncCloudNow = confirm(t("syncDeleteConfirm"));
 
   if (!syncCloudNow) {
-    setCloudStatus("Commessa eliminata in locale. Premi 'Salva su Cloud' per aggiornare il cloud.");
+    setCloudStatus(t("deletedLocalOnly"));
     return;
   }
 
-  setCloudStatus("Aggiornamento cloud in corso dopo cancellazione...");
+  setCloudStatus(t("cloudDeleteSyncing"));
 
   try {
     await callCloud("save");
-    setCloudStatus("Cancellazione sincronizzata anche sul cloud.");
+    setCloudStatus(t("cloudDeleteSynced"));
   } catch {
-    setCloudStatus("Errore aggiornamento cloud: la commessa e stata eliminata solo in locale.");
+    setCloudStatus(t("cloudDeleteError"));
   }
 }
 
@@ -1104,19 +1476,75 @@ function adjustStrisciateSessione(active, sessionIndex, count, sessionElement) {
   }
 }
 
+function parseManualCoordinates(rawValue) {
+  const trimmed = String(rawValue || "").trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const decoded = decodeURIComponent(trimmed);
+  const patterns = [
+    /^\s*(-?\d+(?:\.\d+)?)\s*[,;]\s*(-?\d+(?:\.\d+)?)\s*$/,
+    /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+    /[?&](?:q|query)=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/i,
+    /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = decoded.match(pattern);
+    if (!match) {
+      continue;
+    }
+
+    const lat = Number(match[1]);
+    const lon = Number(match[2]);
+    if (Number.isFinite(lat) && Number.isFinite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+      return { lat, lon };
+    }
+  }
+
+  return null;
+}
+
+function applyManualGeolocation() {
+  const active = getActiveCommessa();
+  if (!active) {
+    alert(t("selectJobFirst"));
+    return;
+  }
+
+  const parsed = parseManualCoordinates(dom.posizioneManuale.value);
+  if (!parsed) {
+    dom.geoStatus.textContent = t("manualPositionInvalid");
+    return;
+  }
+
+  active.posizione = {
+    lat: parsed.lat,
+    lon: parsed.lon,
+    accuracy: null,
+    capturedAt: new Date().toISOString(),
+    source: "manual",
+    rawInput: dom.posizioneManuale.value.trim(),
+  };
+  markCommessaUpdated(active, "Posizione manuale");
+  saveState();
+  renderWorkSheet();
+}
+
 function acquireGeolocation() {
   const active = getActiveCommessa();
   if (!active) {
-    alert("Seleziona prima una commessa.");
+    alert(t("selectJobFirst"));
     return;
   }
 
   if (!("geolocation" in navigator)) {
-    dom.geoStatus.textContent = "Geolocalizzazione non supportata dal browser.";
+    dom.geoStatus.textContent = t("geolocationUnsupported");
     return;
   }
 
-  dom.geoStatus.textContent = "Acquisizione posizione in corso...";
+  dom.geoStatus.textContent = t("geolocationPending");
 
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -1125,6 +1553,7 @@ function acquireGeolocation() {
         lon: position.coords.longitude,
         accuracy: position.coords.accuracy,
         capturedAt: new Date().toISOString(),
+        source: "gps",
       };
       markCommessaUpdated(active, "Acquisizione geolocalizzazione");
       saveState();
@@ -1132,11 +1561,11 @@ function acquireGeolocation() {
     },
     (error) => {
       const labels = {
-        1: "Permesso negato",
-        2: "Posizione non disponibile",
-        3: "Timeout acquisizione",
+        1: t("geolocationDenied"),
+        2: t("geolocationUnavailable"),
+        3: t("geolocationTimeout"),
       };
-      dom.geoStatus.textContent = `Errore geolocalizzazione: ${labels[error.code] || "sconosciuto"}`;
+      dom.geoStatus.textContent = t("geolocationError", { reason: labels[error.code] || t("notAvailable") });
     },
     {
       enableHighAccuracy: true,
@@ -1181,7 +1610,14 @@ function bindEvents() {
     setEditMode(null);
   });
 
+  dom.languageSelect.addEventListener("change", (event) => {
+    setLanguage(event.target.value);
+  });
+
   dom.geoBtn.addEventListener("click", acquireGeolocation);
+  dom.applyManualGeoBtn.addEventListener("click", applyManualGeolocation);
+  dom.positionModeGps.addEventListener("change", () => setPositionMode("gps"));
+  dom.positionModeManual.addEventListener("change", () => setPositionMode("manual"));
 
   dom.giornaleSessions.addEventListener("input", (event) => {
     const active = getActiveCommessa();
@@ -1349,7 +1785,8 @@ function bindEvents() {
     const checkGroup = event.target.dataset.checkGroup;
     const checkKey = event.target.dataset.checkKey;
     if (checkGroup && checkKey) {
-      active.checks[checkGroup][checkKey] = event.target.checked;
+      active.checks[checkGroup][checkKey] = normalizeCheckEntry(active.checks[checkGroup][checkKey]);
+      active.checks[checkGroup][checkKey].checked = event.target.checked;
       markCommessaUpdated(active, `Check ${checkGroup}: ${checkKey}`);
       saveState();
       return;
@@ -1385,6 +1822,15 @@ function bindEvents() {
       return;
     }
 
+    const checkGroup = event.target.dataset.checkNoteGroup;
+    const checkKey = event.target.dataset.checkNoteKey;
+    if (checkGroup && checkKey) {
+      active.checks[checkGroup][checkKey] = normalizeCheckEntry(active.checks[checkGroup][checkKey]);
+      active.checks[checkGroup][checkKey].note = event.target.value;
+      saveState();
+      return;
+    }
+
     if (event.target.id === "g-note") {
       active.giornale.note = event.target.value;
       saveState();
@@ -1396,7 +1842,7 @@ function bindEvents() {
 
     const active = getActiveCommessa();
     if (!active) {
-      alert("Seleziona prima una commessa.");
+      alert(t("selectJobFirst"));
       return;
     }
 
@@ -1407,7 +1853,7 @@ function bindEvents() {
 
     saveState();
     render();
-    alert("Scheda commessa salvata.");
+    alert(t("jobSheetSaved"));
   });
 
   dom.exportDataBtn.addEventListener("click", () => {
@@ -1444,7 +1890,7 @@ function bindEvents() {
         saveState();
         render();
       } catch {
-        alert("Impossibile importare il file JSON.");
+        alert(t("importError"));
       }
     };
 
@@ -1455,7 +1901,7 @@ function bindEvents() {
   dom.cloudEndpoint.addEventListener("change", () => {
     state.cloudEndpoint = dom.cloudEndpoint.value.trim();
     saveState();
-    setCloudStatus(state.cloudEndpoint ? "Endpoint cloud configurato." : "Cloud non configurato.");
+    setCloudStatus(state.cloudEndpoint ? t("endpointConfigured") : t("cloudNotConfigured"));
   });
 
   dom.saveCloudBtn.addEventListener("click", () => {
@@ -1476,19 +1922,19 @@ function bindEvents() {
     const password = dom.authPassword.value;
 
     if (!email.includes("@")) {
-      setAuthStatus("Inserisci un'email valida.");
+      setAuthStatus(t("invalidEmail"));
       return;
     }
 
     if (!password) {
-      setAuthStatus("Inserisci la password.");
+      setAuthStatus(t("missingPassword"));
       return;
     }
 
-    setAuthStatus("Verifica credenziali...");
+    setAuthStatus(t("checkingCredentials"));
     const ok = await tryLogin(email, password, { trackLogin: true });
     if (!ok) {
-      setAuthStatus("Credenziali non valide.");
+      setAuthStatus(t("invalidCredentials"));
       return;
     }
 
@@ -1501,6 +1947,10 @@ function bindEvents() {
 
 async function init() {
   loadState();
+  applyTranslations();
+  if (dom.languageSelect) {
+    dom.languageSelect.value = state.language;
+  }
   renderUserBadge();
   await checkBackendAvailability();
   await loadServerConfig();
@@ -1523,11 +1973,11 @@ async function init() {
   setCloudStatus(
     state.cloudEndpoint
       ? state.backendAvailable
-        ? "Endpoint cloud configurato. Database locale server attivo."
-        : "Endpoint cloud configurato."
+        ? `${t("endpointConfigured")} ${t("backendLocalActive")}`
+        : t("endpointConfigured")
       : state.backendAvailable
-      ? "Cloud non configurato. Database locale server attivo."
-      : "Cloud non configurato."
+      ? `${t("cloudNotConfigured")} ${t("backendLocalActive")}`
+      : t("cloudNotConfigured")
   );
   render();
 }
