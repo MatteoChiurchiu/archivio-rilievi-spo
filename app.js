@@ -358,6 +358,13 @@ function getItemLabel(item) {
   return item.label?.[state.language] || item.label?.it || "";
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function applyTranslations() {
   document.documentElement.lang = state.language;
   document.title = t("appTitle");
@@ -1141,13 +1148,11 @@ function renderChecklist(container, items, group, data) {
         <input type="checkbox" data-check-group="${group}" data-check-key="${item.key}" ${entry.checked ? "checked" : ""} />
         <span>${getItemLabel(item)}</span>
       </label>
-      <input
-        type="text"
+      <textarea
         class="check-note-input"
         data-check-note-group="${group}"
         data-check-note-key="${item.key}"
-        value="${entry.note.replace(/"/g, "&quot;")}"
-        placeholder="${t("checkNotePlaceholder")}" />
+        placeholder="${t("checkNotePlaceholder")}">${escapeHtml(entry.note)}</textarea>
     `;
     container.appendChild(row);
   });
@@ -1173,7 +1178,7 @@ function buildStrisciateRows(tbody, strisciate, sessionIndex) {
       <td><input type="checkbox" class="str-completa" data-session-index="${sessionIndex}" data-index="${i}" ${
       strisciate[i].completa ? "checked" : ""
     } /></td>
-      <td><input type="text" class="str-note" data-session-index="${sessionIndex}" data-index="${i}" value="${strisciate[i].note ?? ""}" placeholder="${t("checkNotePlaceholder")}" /></td>
+      <td><textarea class="str-note" data-session-index="${sessionIndex}" data-index="${i}" placeholder="${t("checkNotePlaceholder")}">${escapeHtml(strisciate[i].note ?? "")}</textarea></td>
     `;
     tbody.appendChild(row);
   }
@@ -1298,6 +1303,21 @@ function setPositionMode(mode) {
   dom.geoBtn.classList.toggle("hidden", isManual);
 }
 
+function updatePrintNoteVisibility() {
+  const noteFields = document.querySelectorAll(".check-note-input, .str-note, #g-note");
+
+  for (const field of noteFields) {
+    const isEmpty = String(field.value || "").trim() === "";
+    field.classList.toggle("print-empty-note", isEmpty);
+  }
+
+  const finalNoteWrapper = document.getElementById("g-note-wrapper");
+  if (finalNoteWrapper) {
+    const finalNoteEmpty = String(dom.gNote?.value || "").trim() === "";
+    finalNoteWrapper.classList.toggle("print-empty-note-block", finalNoteEmpty);
+  }
+}
+
 function formatPosition(position) {
   if (!position) {
     return "";
@@ -1366,6 +1386,7 @@ function renderWorkSheet() {
 
   renderGiornaleSessioni(active.giornale.sessioni);
   renderCommessaHistory(active);
+  updatePrintNoteVisibility();
 }
 
 function render() {
@@ -1589,8 +1610,11 @@ function collectGiornaleFromForm(sessioni) {
 
 function bindEvents() {
   dom.printPdfBtn.addEventListener("click", () => {
+    updatePrintNoteVisibility();
     window.print();
   });
+
+  window.addEventListener("beforeprint", updatePrintNoteVisibility);
 
   dom.commessaForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -1828,12 +1852,14 @@ function bindEvents() {
       active.checks[checkGroup][checkKey] = normalizeCheckEntry(active.checks[checkGroup][checkKey]);
       active.checks[checkGroup][checkKey].note = event.target.value;
       saveState();
+      updatePrintNoteVisibility();
       return;
     }
 
     if (event.target.id === "g-note") {
       active.giornale.note = event.target.value;
       saveState();
+      updatePrintNoteVisibility();
     }
   });
 

@@ -397,13 +397,16 @@ label {
 
 .check-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
   gap: 10px;
   align-items: center;
 }
 
 .check-note-input {
+  width: 100%;
   min-width: 0;
+  min-height: 72px;
+  resize: vertical;
 }
 
 .check-order {
@@ -524,7 +527,9 @@ th.col-dir {
 }
 
 .str-note {
-  min-width: 200px;
+  min-width: 280px;
+  min-height: 64px;
+  resize: vertical;
 }
 
 th {
@@ -700,6 +705,30 @@ tbody tr:hover {
 
   .str-note {
     min-width: 0;
+    min-height: 0;
+    height: auto;
+    overflow: visible;
+    white-space: pre-wrap;
+    resize: none;
+  }
+
+  .check-note-input,
+  #g-note {
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    height: auto;
+    border: 0;
+    background: transparent;
+    padding: 2px;
+    overflow: visible;
+    white-space: pre-wrap;
+    resize: none;
+  }
+
+  .print-empty-note,
+  .print-empty-note-block {
+    display: none !important;
   }
 
   tr,
