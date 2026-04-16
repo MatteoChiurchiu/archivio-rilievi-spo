@@ -1312,7 +1312,7 @@ function updatePrintNoteVisibility() {
 
     if (dom.gNotePrint) {
       dom.gNotePrint.textContent = finalNoteValue;
-      dom.gNotePrint.classList.toggle("hidden", finalNoteEmpty);
+      dom.gNotePrint.classList.add("hidden");
     }
   }
 }
@@ -1324,7 +1324,6 @@ function resetPrintNoteHeights() {
   }
 
   if (dom.gNotePrint) {
-    dom.gNotePrint.classList.add("hidden");
     dom.gNotePrint.textContent = "";
   }
 }

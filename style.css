@@ -217,6 +217,11 @@ textarea:focus {
   border-color: var(--primary);
 }
 
+#g-note {
+  overflow-y: auto;
+  resize: vertical;
+}
+
 .btn {
   border: 0;
   border-radius: 10px;
