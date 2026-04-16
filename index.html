@@ -92,25 +92,9 @@
             </label>
             <label class="full-width">
               <span data-i18n="positionLabel">Posizione geolocalizzata</span>
-              <div class="position-panel">
-                <div class="position-mode-row">
-                  <label class="check-inline compact-check">
-                    <input id="position-mode-gps" type="radio" name="position-mode" value="gps" checked />
-                    <span data-i18n="positionModeGps">Sensore GPS</span>
-                  </label>
-                  <label class="check-inline compact-check">
-                    <input id="position-mode-manual" type="radio" name="position-mode" value="manual" />
-                    <span data-i18n="positionModeManual">Inserimento manuale</span>
-                  </label>
-                </div>
-                <div class="geo-row">
-                  <input id="commessa-posizione" type="text" readonly placeholder="Latitudine, Longitudine" data-i18n-placeholder="positionPlaceholder" />
-                  <button id="geo-btn" type="button" class="btn ghost" data-i18n="acquirePosition">Acquisisci posizione</button>
-                </div>
-                <div id="manual-geo-row" class="manual-geo-row hidden">
-                  <input id="commessa-posizione-manuale" type="text" placeholder="Incolla coordinate o link Google Maps" data-i18n-placeholder="manualPositionPlaceholder" />
-                  <button id="apply-manual-geo" type="button" class="btn ghost" data-i18n="applyManualPosition">Usa posizione</button>
-                </div>
+              <div class="geo-row">
+                <input id="commessa-posizione" type="text" placeholder="Latitudine, Longitudine" data-i18n-placeholder="positionPlaceholder" />
+                <button id="geo-btn" type="button" class="btn ghost" data-i18n="acquirePosition">Acquisisci posizione</button>
               </div>
               <small id="geo-status" class="hint"></small>
             </label>

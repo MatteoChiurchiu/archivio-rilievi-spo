@@ -308,11 +308,6 @@ const dom = {
   localita: document.getElementById("commessa-localita"),
   data: document.getElementById("commessa-data"),
   posizione: document.getElementById("commessa-posizione"),
-  posizioneManuale: document.getElementById("commessa-posizione-manuale"),
-  manualGeoRow: document.getElementById("manual-geo-row"),
-  applyManualGeoBtn: document.getElementById("apply-manual-geo"),
-  positionModeGps: document.getElementById("position-mode-gps"),
-  positionModeManual: document.getElementById("position-mode-manual"),
   geoBtn: document.getElementById("geo-btn"),
   geoStatus: document.getElementById("geo-status"),
 
@@ -1296,13 +1291,6 @@ function ensureGiornaleSessione(active) {
   }
 }
 
-function setPositionMode(mode) {
-  const isManual = mode === "manual";
-  dom.positionModeGps.checked = !isManual;
-  dom.positionModeManual.checked = isManual;
-  dom.manualGeoRow.classList.toggle("hidden", !isManual);
-  dom.geoBtn.classList.toggle("hidden", isManual);
-}
 
 function updatePrintNoteVisibility() {
   const noteFields = document.querySelectorAll(".check-note-input, .str-note, #g-note");
@@ -1345,7 +1333,9 @@ function formatPosition(position) {
   if (!position) {
     return "";
   }
-
+  if (position.rawText) {
+    return position.rawText;
+  }
   return `${Number(position.lat).toFixed(6)}, ${Number(position.lon).toFixed(6)}`;
 }
 
@@ -1363,8 +1353,6 @@ function renderWorkSheet() {
     dom.workForm.reset();
     dom.geoStatus.textContent = t("selectOrCreateJob");
     dom.posizione.value = "";
-    dom.posizioneManuale.value = "";
-    setPositionMode("gps");
     renderChecklist(dom.checkHardware, HARDWARE_ITEMS, "hardware", emptyChecks(HARDWARE_ITEMS));
     renderChecklist(dom.checkMontaggio, MONTAGGIO_ITEMS, "montaggio", emptyChecks(MONTAGGIO_ITEMS));
     dom.giornaleSessions.innerHTML = "";
@@ -1380,22 +1368,12 @@ function renderWorkSheet() {
 
   if (active.posizione) {
     dom.posizione.value = formatPosition(active.posizione);
-    if (active.posizione.source === "manual") {
-      dom.posizioneManuale.value = active.posizione.rawInput || formatPosition(active.posizione);
-      dom.geoStatus.textContent = t("positionFromManual");
-      setPositionMode("manual");
-    } else {
-      dom.posizioneManuale.value = "";
-      dom.geoStatus.textContent = t("positionFromGps", {
-        accuracy: Math.round(Number(active.posizione.accuracy) || 0),
-      });
-      setPositionMode("gps");
-    }
+    dom.geoStatus.textContent = active.posizione.source === "gps"
+      ? t("positionFromGps", { accuracy: Math.round(Number(active.posizione.accuracy) || 0) })
+      : t("positionFromManual");
   } else {
     dom.posizione.value = "";
-    dom.posizioneManuale.value = "";
     dom.geoStatus.textContent = t("positionNotAcquired");
-    setPositionMode(dom.positionModeManual.checked ? "manual" : "gps");
   }
 
   renderChecklist(dom.checkHardware, HARDWARE_ITEMS, "hardware", active.checks.hardware);
@@ -1550,31 +1528,6 @@ function parseManualCoordinates(rawValue) {
   return null;
 }
 
-function applyManualGeolocation() {
-  const active = getActiveCommessa();
-  if (!active) {
-    alert(t("selectJobFirst"));
-    return;
-  }
-
-  const parsed = parseManualCoordinates(dom.posizioneManuale.value);
-  if (!parsed) {
-    dom.geoStatus.textContent = t("manualPositionInvalid");
-    return;
-  }
-
-  active.posizione = {
-    lat: parsed.lat,
-    lon: parsed.lon,
-    accuracy: null,
-    capturedAt: new Date().toISOString(),
-    source: "manual",
-    rawInput: dom.posizioneManuale.value.trim(),
-  };
-  markCommessaUpdated(active, "Posizione manuale");
-  saveState();
-  renderWorkSheet();
-}
 
 function acquireGeolocation() {
   const active = getActiveCommessa();
@@ -1663,9 +1616,24 @@ function bindEvents() {
   });
 
   dom.geoBtn.addEventListener("click", acquireGeolocation);
-  dom.applyManualGeoBtn.addEventListener("click", applyManualGeolocation);
-  dom.positionModeGps.addEventListener("change", () => setPositionMode("gps"));
-  dom.positionModeManual.addEventListener("change", () => setPositionMode("manual"));
+
+  dom.posizione.addEventListener("change", () => {
+    const active = getActiveCommessa();
+    if (!active) return;
+    const raw = dom.posizione.value.trim();
+    if (!raw) {
+      active.posizione = null;
+      dom.geoStatus.textContent = t("positionNotAcquired");
+    } else {
+      const parsed = parseManualCoordinates(raw);
+      active.posizione = parsed
+        ? { lat: parsed.lat, lon: parsed.lon, accuracy: null, capturedAt: new Date().toISOString(), source: "manual", rawInput: raw }
+        : { rawText: raw, source: "text" };
+      dom.geoStatus.textContent = t("positionFromManual");
+    }
+    markCommessaUpdated(active, "Modifica posizione");
+    saveState();
+  });
 
   dom.giornaleSessions.addEventListener("input", (event) => {
     const active = getActiveCommessa();

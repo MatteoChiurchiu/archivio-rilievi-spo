@@ -353,22 +353,7 @@ textarea:focus {
   gap: 8px;
 }
 
-.position-panel {
-  display: grid;
-  gap: 8px;
-}
 
-.position-mode-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.manual-geo-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-}
 
 .hint {
   color: var(--muted);
@@ -620,7 +605,6 @@ tbody tr:hover {
   }
 
   .geo-row,
-  .manual-geo-row,
   .check-row {
     grid-template-columns: 1fr;
   }
