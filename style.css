@@ -706,8 +706,8 @@ tbody tr:hover {
   .str-note {
     min-width: 0;
     min-height: 0;
-    height: auto;
-    overflow: visible;
+    height: auto !important;
+    overflow: hidden;
     white-space: pre-wrap;
     resize: none;
   }
@@ -717,11 +717,11 @@ tbody tr:hover {
     width: 100%;
     max-width: 100%;
     min-height: 0;
-    height: auto;
+    height: auto !important;
     border: 0;
     background: transparent;
     padding: 2px;
-    overflow: visible;
+    overflow: hidden;
     white-space: pre-wrap;
     resize: none;
   }

@@ -1309,12 +1309,23 @@ function updatePrintNoteVisibility() {
   for (const field of noteFields) {
     const isEmpty = String(field.value || "").trim() === "";
     field.classList.toggle("print-empty-note", isEmpty);
+    if (!isEmpty) {
+      field.style.height = "auto";
+      field.style.height = field.scrollHeight + "px";
+    }
   }
 
   const finalNoteWrapper = document.getElementById("g-note-wrapper");
   if (finalNoteWrapper) {
     const finalNoteEmpty = String(dom.gNote?.value || "").trim() === "";
     finalNoteWrapper.classList.toggle("print-empty-note-block", finalNoteEmpty);
+  }
+}
+
+function resetPrintNoteHeights() {
+  const noteFields = document.querySelectorAll(".check-note-input, .str-note, #g-note");
+  for (const field of noteFields) {
+    field.style.height = "";
   }
 }
 
@@ -1615,6 +1626,7 @@ function bindEvents() {
   });
 
   window.addEventListener("beforeprint", updatePrintNoteVisibility);
+  window.addEventListener("afterprint", resetPrintNoteHeights);
 
   dom.commessaForm.addEventListener("submit", (event) => {
     event.preventDefault();
