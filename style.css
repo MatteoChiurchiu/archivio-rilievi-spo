@@ -726,6 +726,24 @@ tbody tr:hover {
     resize: none;
   }
 
+  #g-note {
+    display: none !important;
+  }
+
+  #g-note-print {
+    display: block !important;
+    min-height: 1em;
+    padding: 2px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 0;
+    background: transparent;
+  }
+
+  .history-box {
+    display: none !important;
+  }
+
   .print-empty-note,
   .print-empty-note-block {
     display: none !important;

@@ -324,6 +324,7 @@ const dom = {
   gFoschia: document.getElementById("g-foschia"),
   giornaleSessions: document.getElementById("giornale-sessions"),
   gNote: document.getElementById("g-note"),
+  gNotePrint: document.getElementById("g-note-print"),
   historyList: document.getElementById("history-list"),
 
   exportDataBtn: document.getElementById("export-data"),
@@ -1317,8 +1318,14 @@ function updatePrintNoteVisibility() {
 
   const finalNoteWrapper = document.getElementById("g-note-wrapper");
   if (finalNoteWrapper) {
-    const finalNoteEmpty = String(dom.gNote?.value || "").trim() === "";
+    const finalNoteValue = String(dom.gNote?.value || "").trim();
+    const finalNoteEmpty = finalNoteValue === "";
     finalNoteWrapper.classList.toggle("print-empty-note-block", finalNoteEmpty);
+
+    if (dom.gNotePrint) {
+      dom.gNotePrint.textContent = finalNoteValue;
+      dom.gNotePrint.classList.toggle("hidden", finalNoteEmpty);
+    }
   }
 }
 
@@ -1326,6 +1333,11 @@ function resetPrintNoteHeights() {
   const noteFields = document.querySelectorAll(".check-note-input, .str-note, #g-note");
   for (const field of noteFields) {
     field.style.height = "";
+  }
+
+  if (dom.gNotePrint) {
+    dom.gNotePrint.classList.add("hidden");
+    dom.gNotePrint.textContent = "";
   }
 }
 
